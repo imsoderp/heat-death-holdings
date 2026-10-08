@@ -665,12 +665,12 @@ const DI = Object.fromEntries(DMU.map(d => [d.id, d]));
 const HD_W = 1e26;   // output needed in an era before it can end in heat death (Kardashev Type II)
 const K3_W = 1e36;   // Kardashev Type III: unlocks the Last Light
 const TUNE = { qBase: 10, qExp: 1 / 6, boltz: 0.1, lightX: 10 }; // quintessence curve, Boltzmann step, Last Light multiplier
-const LAWS = [
+const LAWS = [ // listed by starting cost; the order never changes
   { id: 'planck', name: 'Planck constant', desc: 'All profit ×2.', base: 1, grow: 2.5, mult: 2 },
   { id: 'hubble', name: 'Hubble constant', desc: 'Every source runs twice as fast.', base: 3, grow: 4 },
   { id: 'grav', name: 'Gravitational constant', desc: 'Big Crunches yield another +100% dark matter.', base: 5, grow: 4 },
-  { id: 'boltz', name: 'Boltzmann constant', desc: 'Sources get cheaper to stack: price growth −10%.', base: 25, grow: 5, max: 5 },
-  { id: 'start', name: 'Low-entropy Big Bang', desc: ['Start every universe with all operators hired.', 'Also start with 10 of every source.', 'Also start with 100 of every source.'], base: 10, grow: 10, max: 3 }
+  { id: 'start', name: 'Low-entropy Big Bang', desc: ['Start every universe with all operators hired.', 'Also start with 10 of every source.', 'Also start with 100 of every source.'], base: 10, grow: 10, max: 3 },
+  { id: 'boltz', name: 'Boltzmann constant', desc: 'Sources get cheaper to stack: price growth −10%.', base: 25, grow: 5, max: 5 }
 ];
 const LI = Object.fromEntries(LAWS.map(l => [l.id, l]));
 const ANOM = [ // easiest first; goals are energy banked inside the anomalous universe
