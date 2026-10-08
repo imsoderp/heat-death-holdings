@@ -184,6 +184,42 @@ h1 { font-family: var(--font-title); font-size: 20px; line-height: 1.3; color: v
 .dmi.done .cost { color: var(--ink); }
 .netline { display: flex; justify-content: space-between; gap: 10px; font-size: 18px; padding-block: 4px; border-bottom: 2px dotted var(--panel-2); }
 .netline span:last-child { font-family: var(--font-num); font-size: 20px; white-space: nowrap; }
+.netline span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ---- Endgame: heat death panel, multiverse window, ending ---- */
+.kv b.q { color: var(--blue); }
+.hlines { margin-top: 10px; }
+.btn.cold { background: var(--blue); color: #0b1026; box-shadow: inset -3px -3px 0 0 var(--panel), inset 3px 3px 0 0 #9fdcff; }
+.btn.cold.off { background: var(--panel-2); color: var(--dim); box-shadow: inset 3px 3px 0 0 #0b1026; }
+.btn.gap { margin-top: 8px; }
+.mlist { display: grid; gap: 6px; }
+.dmi.law:hover:not(.off) { box-shadow: inset 0 0 0 3px var(--blue); }
+.dmi.law .cost { color: var(--blue); }
+.dmi.law .lv { font-family: var(--font-num); font-size: 18px; color: var(--blue); margin-left: 6px; }
+.dmi.law.done .cost, .dmi.law.done .lv { color: var(--ink); }
+.arow { background: var(--panel-2); padding: 8px 10px; display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 2px 12px; align-items: center; box-shadow: inset 3px 3px 0 0 #0b1026; }
+.arow > div { min-width: 0; display: grid; gap: 1px; }
+.arow strong { font-family: var(--font-pixel); font-weight: 600; font-size: 14px; }
+.arow .up-d { font-size: 16px; }
+.arow .rw { font-size: 16px; color: var(--green); }
+.arow .st { font-family: var(--font-num); font-size: 18px; color: var(--yellow); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.arow .btn { height: 38px; font-size: 13px; }
+.arow.fixed { background: var(--plum); box-shadow: none; }
+.arow.fixed .rw { color: var(--ink); }
+.arow.fixed .st { color: var(--peach); }
+.endcv { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; background: #000; }
+.endtxt { display: grid; gap: 10px; justify-items: center; text-align: center; margin-top: 14px; }
+.endtxt > * { opacity: 0; animation: fadein 0.8s steps(4) forwards; }
+.endtxt > :nth-child(1) { animation-delay: 1.2s; } .endtxt > :nth-child(2) { animation-delay: 2.6s; } .endtxt > :nth-child(3) { animation-delay: 4s; }
+.endtxt > :nth-child(4) { animation-delay: 5.6s; } .endtxt > :nth-child(5) { animation-delay: 6.4s; } .endtxt > :nth-child(6) { animation-delay: 7s; }
+.endtxt p { font-size: 22px; }
+.endtxt h3 { font-family: var(--font-title); font-size: 17px; line-height: 1.5; color: var(--yellow); text-shadow: 3px 3px 0 var(--brown); }
+.endtxt .sub { font-size: 18px; color: var(--muted); }
+.endtxt .btn { width: min(280px, 100%); }
+html.calm .endtxt > * { animation: none; opacity: 1; }
+.run.crank { cursor: pointer; }
+.run.crank:hover { box-shadow: inset 0 0 0 3px var(--blue); }
+.run.crank:active canvas { transform: translateY(2px); }
+.run.crank .autotag { background: var(--orange); }
 details.panel summary { cursor: pointer; font-family: var(--font-title); font-size: 13px; color: var(--yellow); text-shadow: 2px 2px 0 var(--brown); }
 .code { width: 100%; min-height: 80px; font-family: var(--font-term); font-size: 15px; background: var(--panel-2); color: var(--ink); border: 0; padding: 8px; margin-block: 8px; resize: vertical; box-shadow: inset 3px 3px 0 0 #0b1026; }
 .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
@@ -256,6 +292,9 @@ html.calm .pop, html.calm .toast, html.calm .bit, html.calm .run.ready, html.cal
   .bbtn { padding: 0 7px 3px; gap: 6px; font-size: 14px; }
   .ms .lbl { font-size: 14px; letter-spacing: 0.02em; }
   .src { grid-template-columns: 78px minmax(0, 1fr); gap: 6px 10px; }
+  .arow { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .endtxt p { font-size: 19px; }
+  .endtxt h3 { font-size: 13px; }
   .run { width: 78px; }
   .seg button { padding: 6px 6px; font-size: 13px; }
 }
@@ -270,7 +309,7 @@ html.calm .pop, html.calm .toast, html.calm .bit, html.calm .run.ready, html.cal
 <div class="app">
   <div class="title">
     <canvas id="mascot" class="px" width="24" height="24" role="img" aria-label="Captain Nibbles, the hamster in charge"></canvas>
-    <div class="tt"><h1>Heat Death Holdings</h1><p class="pitch">Harvest every joule before the universe winds down.</p></div>
+    <div class="tt"><h1>Heat Death Holdings</h1><p class="pitch" id="pitch">Harvest every joule before the universe winds down.</p></div>
     <div class="bubble box" aria-live="polite"><b>Capt. Nibbles, CEO</b><span id="bubble"></span></div>
   </div>
 
@@ -278,11 +317,12 @@ html.calm .pop, html.calm .toast, html.calm .bit, html.calm .run.ready, html.cal
     <div class="bank"><span class="lbl">Energy banked</span><b id="bank">0 J</b></div>
     <div class="kard">
       <div class="kline"><span class="lbl">Output</span><b id="watts">0 W</b><span class="lbl">Kardashev</span><b class="k" id="ktype">Type 0.00</b></div>
-      <div class="kbar" aria-hidden="true"><i id="kfill"></i>
-        <span class="tick" style="left:24.3%"><span class="kt">Earth</span></span>
-        <span class="tick" style="left:33.3%"><canvas class="ki px" width="12" height="12" data-k="planet"></canvas></span>
-        <span class="tick" style="left:66.6%"><canvas class="ki px" width="12" height="12" data-k="star"></canvas></span>
-        <span class="tick end" style="left:calc(100% - 2px)"><canvas class="ki px" width="12" height="12" data-k="galaxy"></canvas></span>
+      <div class="kbar" id="kbar" aria-hidden="true"><i id="kfill"></i>
+        <span class="tick" data-kt="0.73" style="left:24.3%"><span class="kt">Earth</span></span>
+        <span class="tick" data-kt="1" style="left:33.3%"><canvas class="ki px" width="12" height="12" data-k="planet"></canvas></span>
+        <span class="tick" data-kt="2" style="left:66.6%"><canvas class="ki px" width="12" height="12" data-k="star"></canvas></span>
+        <span class="tick end" data-kt="3" style="left:calc(100% - 2px)"><canvas class="ki px" width="12" height="12" data-k="galaxy"></canvas></span>
+        <span class="tick end" data-kt="4" style="left:calc(100% - 2px)" hidden><canvas class="ki px" width="12" height="12" data-k="universe"></canvas></span>
       </div>
       <div class="cmp"><span id="cmpNow"></span><span class="cmp-next" id="cmpNext"></span></div>
     </div>
@@ -310,6 +350,7 @@ html.calm .pop, html.calm .toast, html.calm .bit, html.calm .run.ready, html.cal
       <div class="upbox" id="upbox"></div>
     </section>
     <section class="panel box" id="crunch"></section>
+    <section class="panel box" id="heat" hidden></section>
     <section class="panel box" id="net"></section>
   </aside>
 </div>
@@ -333,14 +374,17 @@ function si(x, unit) {
   if (!isFinite(x)) return '∞ ' + unit;
   if (x < 0) return '−' + si(-x, unit);
   if (x < 1000) return (x < 10 && x % 1 ? x.toFixed(1) : String(Math.floor(x))) + ' ' + unit;
-  if (S && S.ui.numfmt === 'sci') { const e = Math.floor(Math.log10(x)); return (x / Math.pow(10, e)).toFixed(2) + 'e' + e + (unit ? ' ' + unit : ''); }
-  const i = Math.floor(Math.log10(x) / 3);
-  if (i < PREFIX.length) {
-    const v = x / Math.pow(10, i * 3);
-    return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : v.toFixed(0)) + ' ' + PREFIX[i] + unit;
-  }
-  const e = Math.floor(Math.log10(x));
-  return (x / Math.pow(10, e)).toFixed(2) + 'e' + e + ' ' + unit;
+  if (S && S.ui.numfmt === 'sci') return sciStr(x) + (unit ? ' ' + unit : '');
+  let i = Math.floor(Math.log10(x) / 3), v = x / Math.pow(10, i * 3);
+  let str = v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : v.toFixed(0);
+  if (str === '10.00') str = '10.0'; else if (str === '100.0') str = '100'; else if (str === '1000') { i++; str = '1.00'; }
+  if (i < PREFIX.length) return str + ' ' + PREFIX[i] + unit;
+  return sciStr(x) + ' ' + unit;
+}
+function sciStr(x) { // 9.996e56 reads 1.00e57, never 10.00e56
+  let e = Math.floor(Math.log10(x)), m = x / Math.pow(10, e);
+  if (m >= 9.995) { m /= 10; e++; }
+  return m.toFixed(2) + 'e' + e;
 }
 const J = x => si(x, 'J'), W = x => si(x, 'W');
 function num(x) { return x < 1e6 ? Math.floor(x).toLocaleString('en-US') : si(x, '').trim(); }
@@ -505,6 +549,27 @@ const SPRITES = {
     for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 46; i++) { const s = i * 0.2, q = s + rot + arm * Math.PI; g.px(12 + Math.cos(q) * s * 1.05, 12 + Math.sin(q) * s * 1.05, cols[Math.floor(i / 4) % 4]); }
     g.disc(12, 12, on && Math.floor(t * 5) % 2 ? 2.2 : 1.6, 'w');
     [[3, 4, 0], [20, 6, 1], [5, 19, 2], [19, 20, 3]].forEach(([x, y, ph]) => { if (!on || (Math.floor(t * 3) + ph) % 4) g.px(x, y, 'y'); });
+  },
+  quasar(g, t, on) {
+    stars(g, [[2, 3], [21, 4], [3, 20], [20, 21], [5, 11], [19, 13]]);
+    for (let d = 3; d <= 11; d++) { // twin relativistic jets, widening away from the core
+      const w = d > 7 ? 1 : 0;
+      for (const y of [12 - d, 11 + d]) { g.rect(11 - w, y, 2 + 2 * w, 1, 'B'); g.px(11, y, 'w'); }
+    }
+    if (on) for (let k = 0; k < 2; k++) { const d = 3 + ((t * 14 + k * 4.5) % 9); g.rect(10, 12 - d, 4, 1, 'w'); g.rect(10, 11 + d, 4, 1, 'w'); }
+    g.ell(12, 12, 10, 2.6, 'p'); g.ell(12, 12, 8, 2.1, 'r'); g.ell(12, 12, 6, 1.7, 'o'); g.ell(12, 12, 3.6, 1.3, 'y');
+    g.disc(12, 12, on && Math.floor(t * 6) % 2 ? 2.4 : 1.9, 'w');
+  },
+  hatch(g, t, on) {
+    g.rect(5, 20, 14, 2, 'd'); g.rect(5, 20, 14, 1, 'l'); g.rect(6, 22, 2, 2, 'd'); g.rect(16, 22, 2, 2, 'd');
+    g.rect(10, 1, 4, 2, 'b'); g.rect(10, 3, 4, 2, 'l');
+    g.disc(12, 12, 7.6, 's');
+    const rot = on ? t * 2.2 : 0.5, cols = ['P', 'B', 'v', 'w'];
+    for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 26; i++) { const s = i * 0.22, q = s + rot + arm * Math.PI; g.px(12 + Math.cos(q) * s * 1.1, 12 + Math.sin(q) * s * 1.1, cols[Math.floor(i / 7) % 4]); }
+    g.disc(12, 12, on && Math.floor(t * 4) % 2 ? 1.5 : 1.1, 'y');
+    g.ring(12, 12, 8.4, 'l', 1);
+    g.px(8, 7, 'w'); g.px(7, 8, 'w'); g.px(9, 6, 'w');
+    if (on && Math.floor(t * 2) % 3 === 0) { g.px(17, 6, 'y'); g.px(18, 5, 'w'); }
   }
 };
 const UIICON = {
@@ -514,7 +579,8 @@ const UIICON = {
 const KICON = {
   planet(g) { g.disc(6, 6, 5, 'B'); g.ell(4.5, 5, 2, 1.3, 'G'); g.ell(8, 8.5, 1.5, 1, 'G'); g.px(3, 3, 'w'); },
   star(g) { g.disc(6, 6, 3.5, 'y'); [[6, 0], [6, 11], [0, 6], [11, 6], [2, 2], [9, 2], [2, 9], [9, 9]].forEach(([x, y]) => g.px(x, y, 'o')); g.px(5, 5, 'w'); },
-  galaxy(g) { for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 22; i++) { const s = i * 0.25, q = s + arm * Math.PI; g.px(6 + Math.cos(q) * s * 0.95, 6 + Math.sin(q) * s * 0.95, i < 7 ? 'w' : i < 14 ? 'P' : 'v'); } }
+  galaxy(g) { for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 22; i++) { const s = i * 0.25, q = s + arm * Math.PI; g.px(6 + Math.cos(q) * s * 0.95, 6 + Math.sin(q) * s * 0.95, i < 7 ? 'w' : i < 14 ? 'P' : 'v'); } },
+  universe(g) { g.ring(6, 6, 5.6, 'B', 1); [[4, 4, 'P'], [7, 3, 'w'], [8, 7, 'y'], [3, 7, 'v'], [6, 6, 'w'], [5, 9, 'B'], [9, 5, 'P']].forEach(([x, y, k]) => g.px(x, y, k)); }
 };
 function drawMascot(g, blink, talk, t) {
   g.rect(5, 19, 14, 5, 'w'); g.rect(4, 18, 16, 2, 'l'); g.rect(3, 20, 2, 4, 'w'); g.rect(19, 20, 2, 4, 'w');
@@ -532,6 +598,10 @@ function drawMascot(g, blink, talk, t) {
   g.ring(12, 10, 9, 'B', 1);
   g.px(6, 5, 'w'); g.px(7, 4, 'w'); g.px(5, 7, 'w');
   g.line(18, 2, 20, 0, 'l'); g.px(20, 0, Math.floor(t * 2) % 2 ? 'r' : 'P');
+  if (S && S.won) { // the crown, for switching the universe back on
+    g.rect(8, 1, 8, 2, 'y'); g.px(8, 0, 'y'); g.px(11, 0, 'y'); g.px(12, 0, 'y'); g.px(15, 0, 'y');
+    g.px(10, 1, 'r'); g.px(13, 1, 'B'); g.rect(8, 3, 8, 1, 'o');
+  }
 }
 
 // ================= Game data =================
@@ -556,8 +626,14 @@ const SRC = [
   { id: 'hole',    name: 'Black Hole Harvester', c0: 2.6e9,  r: 1.08, T: 384, R: 1e9,   op: 'Event Horizon Ella', opCost: 1.2e10, quip: 'Stands very, very close to the edge.',
     res: ['Penrose process', 'Spin harvesting', 'Hawking radiation tap', 'Accretion disk sails'] },
   { id: 'vacuum',  name: 'Zero-Point Tap',       c0: 3.2e10, r: 1.07, T: 768, R: 9.8e9, op: 'Zed Zero',           opCost: 1.5e11, quip: 'Borrows energy from nothing and never pays it back.',
-    res: ['Casimir plates', 'False vacuum insurance', 'Borrowing from tomorrow', 'Unbounded vacuum'] }
+    res: ['Casimir plates', 'False vacuum insurance', 'Borrowing from tomorrow', 'Unbounded vacuum'] },
+  // need: heat deaths before this source exists
+  { id: 'quasar',  name: 'Quasar Siphon',        c0: 4e11,   r: 1.065, T: 1536, R: 1e11, op: 'Jet Setter Jo',    opCost: 2e12,   quip: 'Commutes on a relativistic jet.', need: 1,
+    res: ['Jet collimators', 'Accretion feeding schedule', 'Blazar alignment', 'Galactic core lease'] },
+  { id: 'hatch',   name: 'Universe Hatchery',    c0: 5e12,   r: 1.06, T: 3072, R: 1e12,  op: 'Nana Cosmos',        opCost: 3e13,   quip: 'Burps newborn universes. Gently.', need: 1,
+    res: ['Inflaton seeds', 'Bubble nucleation', 'Universe incubators', 'Big Bangs on demand'] }
 ];
+SRC.forEach((s, i) => { s.idx = i; });
 const SI = Object.fromEntries(SRC.map(s => [s.id, s]));
 const SPEED_AT = [10, 25, 50, 100, 150, 200, 300, 400]; // each: this source runs twice as fast
 const PROFIT_AT = [500, 600, 700, 800, 900, 1000];       // each: this source earns twice as much
@@ -585,8 +661,45 @@ const DMU = [
 ];
 const DI = Object.fromEntries(DMU.map(d => [d.id, d]));
 
+// ---- Endgame: heat death, laws of physics, anomalies, the Last Light ----
+const HD_W = 1e26;   // output needed in an era before it can end in heat death (Kardashev Type II)
+const K3_W = 1e36;   // Kardashev Type III: unlocks the Last Light
+const TUNE = { qBase: 10, qExp: 1 / 6, boltz: 0.1, lightX: 10 }; // quintessence curve, Boltzmann step, Last Light multiplier
+const LAWS = [
+  { id: 'planck', name: 'Planck constant', desc: 'All profit ×2.', base: 1, grow: 2.5, mult: 2 },
+  { id: 'hubble', name: 'Hubble constant', desc: 'Every source runs twice as fast.', base: 3, grow: 4 },
+  { id: 'grav', name: 'Gravitational constant', desc: 'Big Crunches yield another +100% dark matter.', base: 5, grow: 4 },
+  { id: 'boltz', name: 'Boltzmann constant', desc: 'Sources get cheaper to stack: price growth −10%.', base: 25, grow: 5, max: 5 },
+  { id: 'start', name: 'Low-entropy Big Bang', desc: ['Start every universe with all operators hired.', 'Also start with 10 of every source.', 'Also start with 100 of every source.'], base: 10, grow: 10, max: 3 }
+];
+const LI = Object.fromEntries(LAWS.map(l => [l.id, l]));
+const ANOM = [ // easiest first; goals are energy banked inside the anomalous universe
+  { id: 'strike', name: 'Operator Strike', rule: 'Operators walk out. Every source runs by hand.', goal: 1e24,
+    reward: 'Hand crank', rdesc: 'Click a source that has an operator to bank 5 seconds of its output.' },
+  { id: 'slow', name: 'Slow Light', rule: 'Light crawls. Every source runs 100× slower.', goal: 1e30,
+    reward: 'Time dilation', rdesc: 'While you are away, operators earn 3× as much, for up to 3 days.' },
+  { id: 'pocket', name: 'Pocket Universe', rule: 'Only the first five sources exist.', goal: 1e33,
+    reward: 'Tight network', rdesc: 'Network milestones continue from 500 to 1,000: all profit ×2 at each.' },
+  { id: 'hyper', name: 'Hyperinflation', rule: 'Source prices climb three times as fast.', goal: 1e38,
+    reward: 'Economies of scale', rdesc: 'Past 1,000 units, every 250 more doubles a source\'s profit.' },
+  { id: 'dark', name: 'Dark Ages', rule: 'Research and breakthroughs do nothing.', goal: 1e42,
+    reward: 'Peer review', rdesc: 'Research and breakthroughs give ×4 instead of ×3.' },
+  { id: 'leak', name: 'Entropy Leak', rule: 'Banked energy leaks away, 5% every second.', goal: 1e46,
+    reward: 'Heat sink', rdesc: 'Heat Death yields 50% more quintessence.' }
+];
+const AI = Object.fromEntries(ANOM.map(a => [a.id, a]));
+const POCKET_N = 5;
+const LIGHT = [
+  { name: 'Sweep up the last photons', cost: 1e40 },
+  { name: 'Relight the dead stars', cost: 1e44 },
+  { name: 'Unstir the cosmic coffee', cost: 1e47 },
+  { name: 'Wind the cosmic clock back', cost: 1e50 },
+  { name: 'Flip the big switch', cost: 1e53 }
+];
+
 // Real-world power figures for scale
-const CMP = [[0.5, 'a hamster on a wheel'], [10, 'an LED bulb'], [100, 'a resting human'], [1e3, 'a microwave oven'], [1e5, 'a car engine'], [2e6, 'a wind turbine'], [1e9, 'a nuclear reactor'], [2.25e10, 'the Three Gorges Dam'], [1.9e13, 'all of human civilization'], [1.74e17, 'all sunlight reaching Earth'], [3.8e26, 'the Sun'], [1e37, 'the Milky Way']];
+const CMP = [[0.5, 'a hamster on a wheel'], [10, 'an LED bulb'], [100, 'a resting human'], [1e3, 'a microwave oven'], [1e5, 'a car engine'], [2e6, 'a wind turbine'], [1e9, 'a nuclear reactor'], [2.25e10, 'the Three Gorges Dam'], [1.9e13, 'all of human civilization'], [1.74e17, 'all sunlight reaching Earth'], [3.8e26, 'the Sun'], [1e37, 'the Milky Way'],
+  [1.5e39, 'the quasar 3C 273'], [3.6e49, 'the black hole merger GW150914'], [3.6e52, 'the Planck power, the most physics allows']];
 
 // Captain Nibbles' lines
 const QUIPS = [
@@ -600,6 +713,14 @@ const QUIPS = [
   "Hire operators. I can't run every wheel myself.",
   "Entropy wins in the end. Let's make the end profitable.",
   'Fun fact: a real hamster makes about half a watt.'
+];
+const LATE_QUIPS = [
+  'Quintessence: the fifth element. The first four were seeds.',
+  'Heat death is just the universe taking a very long nap.',
+  'I have rewritten physics twice before breakfast.',
+  'Somewhere out there, a quasar is jealous of us.',
+  'Nana Cosmos says the new universes are teething.',
+  'Every era, the wheel spins a little faster.'
 ];
 
 // ================= Sound (off until the player turns it on) =================
@@ -626,7 +747,10 @@ const SFX = {
   mile: () => tone([[523, 0.07], [659, 0.07], [784, 0.07], [1047, 0.12]]),
   op: () => tone([[392, 0.06], [523, 0.06], [659, 0.1]]),
   res: () => tone([[659, 0.05], [988, 0.08]], 'triangle', 0.05),
-  crunch: () => tone([[880, 0.12], [660, 0.12], [440, 0.12], [220, 0.2], [110, 0.3], [1760, 0.5]], 'sawtooth', 0.035)
+  crunch: () => tone([[880, 0.12], [660, 0.12], [440, 0.12], [220, 0.2], [110, 0.3], [1760, 0.5]], 'sawtooth', 0.035),
+  heat: () => tone([[392, 0.35], [330, 0.35], [262, 0.4], [196, 0.5], [131, 0.8], [1568, 0.6]], 'triangle', 0.05),
+  crank: () => tone([[1046, 0.03]], 'square', 0.02),
+  win: () => tone([[523, 0.12], [659, 0.12], [784, 0.12], [1047, 0.2], [784, 0.12], [1047, 0.4]], 'square', 0.04)
 };
 
 // ================= State =================
@@ -636,7 +760,22 @@ const M = { cyc: {}, rev: {}, auto: 0, global: 1, watts: 0 };
 let RES = new Set(), DMS = new Set();
 const hasR = id => RES.has(id), hasD = id => DMS.has(id);
 function syncSets() { RES = new Set(S.res); DMS = new Set(S.dmu); }
-let manualRate = 0, manualAcc = 0;
+let manualRate = 0, manualAcc = 0, crankAcc = 0;
+
+// Which sources exist right now, and which physics apply
+const live = s => !s.need || S.deaths >= s.need;
+const inA = id => S.anom === id;
+const hasA = id => S.anomDone.includes(id);
+const inPlay = s => live(s) && !(inA('pocket') && s.idx >= POCKET_N);
+const lv = id => S.laws[id] || 0;
+const opOn = st => st.op && !inA('strike');
+const rOf = s => 1 + (s.r - 1) * (1 - TUNE.boltz * lv('boltz')) * (inA('hyper') ? 3 : 1);
+const resOn = () => !inA('dark');
+const resX = () => hasA('dark') ? 4 : 3;
+const ALL_MORE = [500, 600, 700, 800, 900, 1000];
+const allAt = () => hasA('pocket') ? ALL_AT.concat(ALL_MORE) : ALL_AT;
+const extraProfit = n => hasA('hyper') && n >= 1250 ? Math.floor((n - 1000) / 250) : 0;
+const kMax = () => S.deaths > 0 || S.k3 ? 4 : 3;
 
 function freshSources() {
   const o = {}; SRC.forEach(s => o[s.id] = { n: 0, p: 0, run: false, op: false });
@@ -646,12 +785,25 @@ function freshSources() {
 function fresh() {
   return { v: 1, J: 0, life: 0, runLife: 0, universe: 1, src: freshSources(), res: [], dm: 0, dmEarned: 0, dmu: [],
     t: 0, runT: 0, clicks: 0, bestW: 0, runBestW: 0, saved: Date.now(), started: Date.now(), trend: [], trendT: 0, hist: [],
+    deaths: 0, q: 0, qEarned: 0, laws: {}, anom: '', anomDone: [], ll: 0, eraLife: 0, eraT: 0, eraBestW: 0, k3: false, won: 0, ehist: [],
     ui: { buy: 1, sound: false, vol: 60, motion: prefersCalm ? 'calm' : 'full', stars: true, chatter: 'all', toasts: 'all', numfmt: 'si', confirm: true, cloud: true, cmp: -1 } };
 }
 function hydrate(d) {
   if (!d || typeof d !== 'object' || d.v !== 1) return null;
   const s = fresh();
-  for (const k of ['J', 'life', 'runLife', 'universe', 'dm', 'dmEarned', 't', 'runT', 'clicks', 'bestW', 'runBestW', 'saved', 'started', 'trendT']) if (typeof d[k] === 'number' && isFinite(d[k]) && d[k] >= 0) s[k] = d[k];
+  for (const k of ['J', 'life', 'runLife', 'universe', 'dm', 'dmEarned', 't', 'runT', 'clicks', 'bestW', 'runBestW', 'saved', 'started', 'trendT',
+    'deaths', 'q', 'qEarned', 'eraLife', 'eraT', 'eraBestW', 'won']) if (typeof d[k] === 'number' && isFinite(d[k]) && d[k] >= 0) s[k] = d[k];
+  // saves from before heat death existed: the whole history so far is era 1
+  if (typeof d.eraLife !== 'number') s.eraLife = s.life;
+  if (typeof d.eraT !== 'number') s.eraT = s.t;
+  if (typeof d.eraBestW !== 'number') s.eraBestW = s.bestW;
+  s.deaths = Math.floor(s.deaths); s.q = Math.floor(s.q); s.qEarned = Math.max(s.qEarned, s.q);
+  s.ll = clamp(Math.floor(+d.ll || 0), 0, LIGHT.length);
+  s.k3 = !!d.k3 || s.bestW >= K3_W;
+  if (d.laws && typeof d.laws === 'object') LAWS.forEach(L => { const v = Math.floor(+d.laws[L.id] || 0); if (v > 0) s.laws[L.id] = L.max ? Math.min(v, L.max) : v; });
+  if (Array.isArray(d.anomDone)) s.anomDone = [...new Set(d.anomDone.filter(id => AI[id]))];
+  if (AI[d.anom] && !s.anomDone.includes(d.anom)) s.anom = d.anom;
+  if (Array.isArray(d.ehist)) s.ehist = d.ehist.filter(h => h && typeof h.e === 'number').slice(-30);
   if (Array.isArray(d.res)) s.res = d.res.filter(id => UI[id] && UI[id].kind !== 'op');
   if (Array.isArray(d.dmu)) s.dmu = d.dmu.filter(id => DI[id]);
   if (d.src && typeof d.src === 'object') SRC.forEach(x => {
@@ -677,26 +829,29 @@ function loadLocal() { try { const raw = localStorage.getItem(SAVE_KEY); if (raw
 function save() { if (!S) return; S.saved = Date.now(); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
 
 // ================= Economy =================
-function gain(x) { if (x > 0 && isFinite(x)) { S.J += x; S.life += x; S.runLife += x; } }
-const minOwned = () => Math.min(...SRC.map(s => S.src[s.id].n));
+function gain(x) { if (x > 0 && isFinite(x)) { S.J += x; S.life += x; S.runLife += x; S.eraLife += x; } }
+function minOwned() { let m = Infinity; for (const s of SRC) if (inPlay(s)) m = Math.min(m, S.src[s.id].n); return m === Infinity ? 0 : m; }
 const dmRate = () => hasD('energy') ? 0.03 : 0.02;
 function recalc() {
   let g = 1;
-  GLOBAL_RES.forEach((_, i) => { if (hasR('g-' + i)) g *= 3; });
-  const lo = minOwned(); ALL_AT.forEach(a => { if (lo >= a) g *= 2; });
+  const rx = resX(), ro = resOn();
+  if (ro) GLOBAL_RES.forEach((_, i) => { if (hasR('g-' + i)) g *= rx; });
+  const lo = minOwned(); allAt().forEach(a => { if (lo >= a) g *= 2; });
   g *= 1 + dmRate() * S.dm;
   DMU.forEach(d => { if (d.mult && hasD(d.id)) g *= d.mult; });
+  g *= Math.pow(LI.planck.mult, lv('planck')) * Math.pow(TUNE.lightX, S.ll);
   M.global = g;
   let auto = 0;
+  const sp0 = (hasD('strings') ? 2 : 1) * Math.pow(2, lv('hubble')) / (inA('slow') ? 100 : 1);
   for (const s of SRC) {
     const st = S.src[s.id];
-    let sp = hasD('strings') ? 2 : 1, pr = 1;
+    let sp = sp0, pr = Math.pow(2, extraProfit(st.n));
     SPEED_AT.forEach(a => { if (st.n >= a) sp *= 2; });
     PROFIT_AT.forEach(a => { if (st.n >= a) pr *= 2; });
-    s.res.forEach((_, i) => { if (hasR(`r-${s.id}-${i}`)) pr *= 3; });
+    if (ro) s.res.forEach((_, i) => { if (hasR(`r-${s.id}-${i}`)) pr *= rx; });
     M.cyc[s.id] = s.T / sp;
-    M.rev[s.id] = s.R * st.n * pr * g;
-    if (st.op && st.n > 0) auto += M.rev[s.id] / M.cyc[s.id];
+    M.rev[s.id] = inPlay(s) ? s.R * st.n * pr * g : 0;
+    if (opOn(st) && st.n > 0) auto += M.rev[s.id] / M.cyc[s.id];
   }
   M.auto = auto;
   M.watts = auto + manualRate;
@@ -704,12 +859,15 @@ function recalc() {
 function nextMilestone(n) {
   const sp = SPEED_AT.find(a => a > n); if (sp) return { at: sp, kind: 'speed ×2' };
   const pr = PROFIT_AT.find(a => a > n); if (pr) return { at: pr, kind: 'profit ×2' };
+  if (hasA('hyper')) return { at: 1000 + 250 * (Math.floor((n - 1000) / 250) + 1), kind: 'profit ×2' };
   return null;
 }
-function priceN(s, k) { const st = S.src[s.id]; return s.c0 * Math.pow(s.r, st.n) * (Math.pow(s.r, k) - 1) / (s.r - 1); }
+function priceN(s, k) { const st = S.src[s.id], r = rOf(s); return s.c0 * Math.pow(r, st.n) * (Math.pow(r, k) - 1) / (r - 1); }
 function maxN(s) {
-  const st = S.src[s.id], p0 = s.c0 * Math.pow(s.r, st.n);
-  let k = Math.floor(Math.log(S.J * (s.r - 1) / p0 + 1) / Math.log(s.r));
+  const st = S.src[s.id], r = rOf(s), p0 = s.c0 * Math.pow(r, st.n);
+  let k = Math.floor(Math.log(S.J * (r - 1) / p0 + 1) / Math.log(r));
+  if (!isFinite(k)) k = 0;
+  k = Math.min(k, 100000);
   while (k > 0 && priceN(s, k) > S.J) k--;
   return Math.max(0, k);
 }
@@ -720,7 +878,7 @@ function buyCount(s) {
   return +b;
 }
 function buySource(id) {
-  const s = SI[id]; if (!s) return;
+  const s = SI[id]; if (!s || !inPlay(s)) return;
   const k = buyCount(s); if (k < 1) return;
   const c = priceN(s, k); if (c > S.J) return;
   const st = S.src[id], before = st.n, loBefore = minOwned();
@@ -729,50 +887,143 @@ function buySource(id) {
   [...SPEED_AT.map(a => [a, 'runs twice as fast']), ...PROFIT_AT.map(a => [a, 'earns twice as much'])].forEach(([a, what]) => {
     if (before < a && st.n >= a) { toast(`${s.name} reached ${a}: it ${what}.`, true); mile = true; }
   });
+  if (extraProfit(st.n) > extraProfit(before)) { toast(`${s.name} reached ${num(1000 + 250 * extraProfit(st.n))}: it earns twice as much.`, true); mile = true; }
   const lo = minOwned();
-  ALL_AT.forEach(a => { if (loBefore < a && lo >= a) { toast(`Every source reached ${a}: all profit ×2.`, true); mile = true; } });
+  allAt().forEach(a => { if (loBefore < a && lo >= a) { toast(`Every source reached ${a}: all profit ×2.`, true); mile = true; } });
   if (mile) { SFX.mile(); confetti(id); say(pick(['Faster! FASTER!', 'Look at it go!', "That's what I call acceleration.", 'Squeak of approval.']), true); }
   else SFX.buy();
   if (before === 0) say(`A ${s.name.toLowerCase()}! Can I name it?`, true);
 }
 function buyUpgrade(id) {
-  const u = UI[id]; if (!u || S.J < u.cost) return;
+  const u = UI[id]; if (!u || S.J < u.cost || !upShown(u)) return;
   if (u.kind === 'op') {
     if (S.src[u.src].op) return;
     S.src[u.src].op = true; toast(`${u.name} now runs the ${SI[u.src].name}.`); SFX.op();
     say(`Welcome to the team, ${u.name}!`, true);
   } else {
     if (hasR(id)) return;
-    S.res.push(id); RES.add(id); toast(`${u.name}: ${u.desc}`); SFX.res();
+    S.res.push(id); RES.add(id); toast(`${u.name}: ${u.kind === 'res' ? SI[u.src].name + ' profit' : 'Profit for every source'} ×${resX()}.`); SFX.res();
     say(pick(['Science!', 'Peer review can wait. Ship it!', 'I understood none of that. Love it.']));
   }
   S.J -= u.cost;
 }
 const upDone = u => u.kind === 'op' ? S.src[u.src].op : hasR(u.id);
+// Is this upgrade offered in this universe? (its source exists, and the anomaly allows it)
+const upShown = u => (!u.src || inPlay(SI[u.src])) && (u.kind === 'op' ? !inA('strike') : resOn());
 function startRun(id) {
-  const st = S.src[id];
-  if (st.n < 1 || st.run || st.op) return false;
+  const s = SI[id], st = S.src[id];
+  if (!s || !inPlay(s) || st.n < 1 || st.run || opOn(st)) return false;
   st.run = true; st.p = 0; S.clicks++;
   SFX.run();
   return true;
+}
+// Hand crank (anomaly reward): clicking an automated source banks a few seconds of its output
+const canCrank = (s, st) => hasA('strike') && opOn(st) && st.n > 0 && inPlay(s);
+function crank(id) {
+  const s = SI[id], st = S.src[id];
+  if (!s || !canCrank(s, st)) return;
+  const x = 5 * M.rev[id] / M.cyc[id];
+  gain(x); crankAcc += x; S.clicks++;
+  popOn(id, '+' + J(x)); SFX.crank();
 }
 
 // ---- Dark matter / Big Crunch ----
 const dmFor = life => Math.floor(100 * Math.pow(life / 1e12, 0.25));
 const lifeFor = n => Math.pow(n / 100, 4) * 1e12;
-const dmClaim = () => Math.max(0, dmFor(S.life) - S.dmEarned);
-function crunch() {
-  const k = dmClaim(); if (k < 1) return;
-  S.hist.push({ u: S.universe, dur: S.runT, dm: k, w: S.runBestW }); if (S.hist.length > 30) S.hist.shift();
-  const keep = { life: S.life, dm: S.dm + k, dmEarned: S.dmEarned + k, dmu: S.dmu, t: S.t, clicks: S.clicks, bestW: S.bestW, started: S.started, ui: S.ui, universe: S.universe + 1, trend: S.trend, trendT: S.trendT, hist: S.hist };
-  S = Object.assign(fresh(), keep);
-  syncSets();
-  if (hasD('prim')) S.J = 1e6;
+const gMult = () => 1 + lv('grav');
+const dmClaim = () => Math.max(0, Math.floor(dmFor(S.eraLife) * gMult()) - S.dmEarned);
+const dmNeed = n => lifeFor(n / gMult()); // era energy needed for n dark matter in all
+// What carries over into the next universe (anomaly: the rule the new universe runs under)
+function carry(extra) {
+  return Object.assign({ life: S.life, t: S.t, clicks: S.clicks, bestW: S.bestW, started: S.started, ui: S.ui, universe: S.universe + 1, trend: S.trend, trendT: S.trendT, hist: S.hist,
+    deaths: S.deaths, q: S.q, qEarned: S.qEarned, laws: S.laws, anomDone: S.anomDone, ll: S.ll, k3: S.k3, won: S.won, ehist: S.ehist }, extra);
+}
+function seedUniverse() {
+  if (hasD('prim')) S.J = Math.max(S.J, 1e6);
   if (hasD('seed')) { S.src.wheel.op = true; S.src.solar.op = true; }
+  applyStartLaw();
+}
+function applyStartLaw() {
+  const l = lv('start');
+  SRC.forEach(s => {
+    if (!live(s)) return;
+    const st = S.src[s.id];
+    if (l >= 1) st.op = true;
+    if (l >= 2) st.n = Math.max(st.n, l >= 3 ? 100 : 10);
+  });
+}
+function crunch(anom) {
+  const k = dmClaim(); if (k < 1 && !anom) return;
+  S.hist.push({ u: S.universe, dur: S.runT, dm: k, w: S.runBestW, a: S.anom || undefined }); if (S.hist.length > 30) S.hist.shift();
+  S = Object.assign(fresh(), carry({ dm: S.dm + k, dmEarned: S.dmEarned + k, dmu: S.dmu, eraLife: S.eraLife, eraT: S.eraT, eraBestW: S.eraBestW, anom: anom || '' }));
+  syncSets(); seedUniverse();
   manualRate = 0; S.ui.cmp = -1;
   sig = {};
-  toast(`The universe collapsed and began again. +${num(k)} dark matter.`, true);
-  say(`Universe #${S.universe}. Same hamster, bigger dreams.`, true);
+  if (anom) {
+    toast(`${k >= 1 ? `+${num(k)} dark matter. ` : ''}You collapsed into an anomaly: ${AI[anom].name}. ${AI[anom].rule}`, true);
+    say(pick(["Something's off about this universe.", 'Physics feels... weird today.', 'Hold on to your cheek pouches.']), true);
+  } else {
+    toast(`The universe collapsed and began again. +${num(k)} dark matter.`, true);
+    say(`Universe #${S.universe}. Same hamster, bigger dreams.`, true);
+  }
+}
+
+// ---- Heat death / quintessence ----
+const qMult = () => hasA('leak') ? 1.5 : 1;
+const qFor = life => Math.floor(TUNE.qBase * Math.pow(Math.max(life, 0) / 1e30, TUNE.qExp) * qMult());
+const qNeed = n => 1e30 * Math.pow(n / TUNE.qBase / qMult(), 1 / TUNE.qExp); // era energy needed for n quintessence
+const qClaim = () => S.eraBestW >= HD_W ? qFor(S.eraLife) : 0;
+function heatDeath() {
+  const k = qClaim(); if (k < 1) return;
+  S.ehist.push({ e: S.deaths + 1, dur: S.eraT, q: k, w: S.eraBestW, u: S.universe }); if (S.ehist.length > 30) S.ehist.shift();
+  S.hist.push({ u: S.universe, dur: S.runT, dm: 0, w: S.runBestW, a: S.anom || undefined, hd: 1 }); if (S.hist.length > 30) S.hist.shift();
+  S = Object.assign(fresh(), carry({ deaths: S.deaths + 1, q: S.q + k, qEarned: S.qEarned + k }));
+  syncSets(); seedUniverse();
+  manualRate = 0; S.ui.cmp = -1;
+  sig = {};
+  layoutKbar();
+  toast(`Heat death. The last light went out, and era #${S.deaths + 1} began. +${num(k)} quintessence.`, true);
+  say(S.deaths === 1 ? 'It got cold. Then it got new. Spend that quintessence!' : `Era #${S.deaths + 1}. I brought a sweater this time.`, true);
+}
+const lawCost = L => Math.round(L.base * Math.pow(L.grow, lv(L.id)));
+const lawMaxed = L => !!L.max && lv(L.id) >= L.max;
+function buyLaw(id) {
+  const L = LI[id]; if (!L || lawMaxed(L)) return;
+  const c = lawCost(L); if (S.q < c) return;
+  S.q -= c; S.laws[L.id] = lv(L.id) + 1;
+  if (L.id === 'start') applyStartLaw();
+  toast(`${L.name} rewritten: ${lawDesc(L, lv(L.id) - 1)}`, true); SFX.res();
+  say(pick(['New physics, fresh out of the oven.', 'I asked nicely and the universe agreed.', 'The laws of physics are more like guidelines.']), true);
+}
+const lawDesc = (L, l) => Array.isArray(L.desc) ? L.desc[Math.min(l, L.desc.length - 1)] : L.desc;
+
+// ---- Anomalies ----
+function checkAnomaly() {
+  const a = AI[S.anom]; if (!a || S.runLife < a.goal) return;
+  S.anom = '';
+  if (!S.anomDone.includes(a.id)) S.anomDone.push(a.id);
+  toast(`Anomaly fixed: ${a.name}. Reward, ${a.reward}: ${a.rdesc}`, true); SFX.mile();
+  say(pick(['Physics: repaired. Mostly.', 'Anomaly fixed! I deserve a seed.', 'That universe will never misbehave again.']), true);
+}
+function leaveAnomaly() {
+  if (!S.anom) return;
+  const a = AI[S.anom]; S.anom = '';
+  toast(`You left ${a.name}. Physics is back to normal in this universe.`);
+}
+
+// ---- The Last Light ----
+function fundLight() {
+  if (!S.k3 || S.ll >= LIGHT.length) return;
+  const st = LIGHT[S.ll]; if (S.J < st.cost) return;
+  S.J -= st.cost; S.ll++;
+  if (S.ll === LIGHT.length) {
+    if (!S.won) S.won = Date.now();
+    updatePitch();
+    SFX.win(); openModal('end'); say('We did it. Same time next eternity?', true);
+  } else {
+    toast(`The Last Light, stage ${S.ll} of ${LIGHT.length}: ${st.name}. All profit ×10, for good.`, true); SFX.mile();
+    say(pick(['A little warmer already.', 'The universe says thank you. I think.', 'Keep going. The switch is close.']), true);
+  }
 }
 function buyDM(id) {
   const d = DI[id]; if (!d || hasD(id) || S.dm < d.cost) return;
@@ -784,26 +1035,31 @@ function buyDM(id) {
 
 // ================= Main loop =================
 function tick(dt) {
-  S.t += dt; S.runT += dt;
+  S.t += dt; S.runT += dt; S.eraT += dt;
   recalc();
-  manualAcc = 0;
+  manualAcc = crankAcc; crankAcc = 0;
   for (const s of SRC) {
     const st = S.src[s.id];
-    if (st.n < 1) continue;
-    if (st.op && !st.run) { st.run = true; st.p = 0; }
+    if (st.n < 1 || !inPlay(s)) continue;
+    const auto = opOn(st);
+    if (auto && !st.run) { st.run = true; st.p = 0; }
     if (!st.run) continue;
     st.p += dt / M.cyc[s.id];
     if (st.p >= 1) {
-      if (st.op) { const k = Math.floor(st.p); gain(k * M.rev[s.id]); st.p -= k; }
+      if (auto) { const k = Math.floor(st.p); gain(k * M.rev[s.id]); st.p -= k; }
       else { gain(M.rev[s.id]); manualAcc += M.rev[s.id]; st.p = 0; st.run = false; popOn(s.id, '+' + J(M.rev[s.id])); SFX.done(); }
     }
   }
+  if (inA('leak')) S.J *= Math.exp(-0.05 * dt);
   const a = 1 - Math.exp(-dt / 4);
   manualRate += (manualAcc / Math.max(dt, 1e-3) - manualRate) * a;
   if (manualRate < 1e-6) manualRate = 0;
   M.watts = M.auto + manualRate;
   if (M.watts > S.bestW) S.bestW = M.watts;
   if (M.watts > S.runBestW) S.runBestW = M.watts;
+  if (M.watts > S.eraBestW) S.eraBestW = M.watts;
+  if (!S.k3 && M.watts >= K3_W) { S.k3 = true; layoutKbar(); toast('Kardashev Type III: you run a whole galaxy. The Last Light can begin.', true); say('A whole galaxy! Now we can fix the ending.', true); }
+  checkAnomaly();
   S.trendT += dt;
   while (S.trendT >= 10) { S.trendT -= 10; S.trend.push(M.watts); if (S.trend.length > 180) S.trend.shift(); }
 }
@@ -811,6 +1067,7 @@ function tick(dt) {
 // ================= Mascot =================
 const mascot = pen($('mascot').getContext('2d'));
 let sayUntil = 0, lastSay = 0, talkUntil = 0;
+const quipPool = () => S && S.deaths > 0 ? QUIPS.concat(LATE_QUIPS, LATE_QUIPS) : QUIPS;
 function say(text, force, idle) {
   if (S && (S.ui.chatter === 'off' || (idle && S.ui.chatter === 'quiet'))) return;
   const now = performance.now();
@@ -824,7 +1081,7 @@ function drawMascotFrame(now) {
   const blink = (now % 3600) < 140;
   const talk = now < talkUntil && Math.floor(now / 130) % 2 === 0;
   drawMascot(mascot, blink, talk, now / 1000);
-  if (now - lastSay > 40000) say(pick(QUIPS), false, true);
+  if (now - lastSay > 40000) say(pick(quipPool()), false, true);
 }
 
 // ================= Starfield =================
@@ -912,6 +1169,48 @@ function crunchFx(done) {
   };
   requestAnimationFrame(frame);
 }
+// A crisp filled circle drawn as one span per row (fast for big radii)
+function spanDisc(c, cx, cy, r, col) {
+  c.fillStyle = col;
+  for (let y = Math.max(0, Math.floor(cy - r)); y <= Math.min(c.canvas.height - 1, Math.ceil(cy + r)); y++) {
+    const dy = y + 0.5 - cy, hw = Math.sqrt(Math.max(0, r * r - dy * dy));
+    if (hw > 0) c.fillRect(Math.round(cx - hw), y, Math.round(hw * 2), 1);
+  }
+}
+// Heat death: the stars go out one by one, the dark lingers, then a single spark starts the next era.
+function heatFx(done) {
+  SFX.heat();
+  if (calm()) { done(); return; }
+  const cv = document.createElement('canvas'); cv.className = 'fx'; document.body.appendChild(cv);
+  const sc = 4, w = cv.width = Math.ceil(innerWidth / sc), h = cv.height = Math.ceil(innerHeight / sc), c = cv.getContext('2d');
+  const P = Array.from({ length: 420 }, () => ({ x: Math.random() * w, y: Math.random() * h, out: 0.3 + Math.random() * 2.2, k: pick(['w', 'w', 'y', 'o', 'P', 'B', 'l']) }));
+  const t0 = performance.now(); let did = false, gone = false;
+  const finish = () => { if (!did) { did = true; done(); } };
+  const end = () => { if (!gone) { gone = true; finish(); cv.remove(); } };
+  setTimeout(end, 5000);
+  const frame = () => {
+    if (gone) return;
+    const t = (performance.now() - t0) / 1000;
+    c.globalAlpha = 1; c.fillStyle = '#05070f'; c.fillRect(0, 0, w, h);
+    if (t < 2.6) {
+      cv.style.opacity = String(Math.min(1, t / 0.3));
+      for (const p of P) {
+        if (t > p.out) continue;
+        c.fillStyle = PAL[t > p.out - 0.35 ? (t > p.out - 0.15 ? 'n' : 'p') : p.k];
+        c.fillRect((p.x + t * 2) | 0, p.y | 0, 1, 1);
+      }
+    } else if (t < 3.3) {
+      finish();
+    } else if (t < 4.6) {
+      const f = (t - 3.3) / 1.3, r = Math.max(1, f * f * Math.hypot(w, h) * 0.7);
+      spanDisc(c, w / 2, h / 2, r, PAL.w);
+      if (r > 3) spanDisc(c, w / 2, h / 2, r * 0.7, PAL.y);
+      cv.style.opacity = String(1 - Math.max(0, (f - 0.5) / 0.5));
+    } else { end(); return; }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
 
 // ================= Rendering =================
 const HOLD = { side: { inside: false, left: 0 } };
@@ -961,7 +1260,7 @@ function buildSources() {
   document.querySelectorAll('canvas[data-k]').forEach(cv => KICON[cv.dataset.k](pen(cv.getContext('2d'))));
 }
 function drawSprite(s, now) {
-  const st = S.src[s.id], P = PENS[s.id], on = st.run || st.op, locked = st.n < 1;
+  const st = S.src[s.id], P = PENS[s.id], on = st.run || opOn(st), locked = st.n < 1 || !inPlay(s);
   const t = calm() ? 0 : now / 1000 * clamp(2 / M.cyc[s.id], 1, 4);
   const key = locked ? 'L' : on && !calm() ? 'A' + Math.floor(t * 12) : 'I';
   if (key === P.key) return;
@@ -973,44 +1272,60 @@ function drawSprite(s, now) {
 function renderSources(now) {
   for (const s of SRC) {
     const card = document.querySelector(`[data-src="${s.id}"]`); if (!card) continue;
+    const exists = live(s);
+    if (card.hidden === exists) card.hidden = !exists;
+    if (!exists) continue;
     const q = f => card.querySelector(`[data-f="${f}"]`);
-    const st = S.src[s.id], owned = st.n > 0, cyc = M.cyc[s.id], rev = M.rev[s.id] || 0;
+    const st = S.src[s.id], play = inPlay(s), owned = st.n > 0 && play, cyc = M.cyc[s.id], rev = M.rev[s.id] || 0;
+    const auto = opOn(st) && play, cr = canCrank(s, st);
     drawSprite(s, now);
     card.classList.toggle('locked', !owned);
     const runBtn = card.querySelector('.run');
     setText(q('n'), num(st.n));
-    q('auto').hidden = !st.op;
-    runBtn.classList.toggle('auto', st.op);
-    runBtn.classList.toggle('ready', owned && !st.op && !st.run);
-    off(runBtn, !owned || st.run || st.op);
+    q('auto').hidden = !auto;
+    setText(q('auto'), cr ? 'CRANK' : 'AUTO');
+    runBtn.classList.toggle('auto', auto && !cr);
+    runBtn.classList.toggle('crank', cr);
+    runBtn.classList.toggle('ready', owned && !auto && !st.run);
+    off(runBtn, !(cr || (owned && !auto && !st.run)));
     const who = q('who');
-    setText(who, st.op ? s.op : owned ? (st.run ? 'Running' : 'Click to run') : 'Not built');
-    who.classList.toggle('go', owned && !st.op && !st.run);
-    const fast = st.op && cyc < 0.25;
+    setText(who, !play ? 'Not in this universe' : auto ? s.op : owned ? (st.run ? 'Running' : 'Click to run') : st.op && inA('strike') ? 'On strike' : 'Not built');
+    who.classList.toggle('go', owned && !auto && !st.run);
+    const fast = auto && cyc < 0.25;
     q('bar').classList.toggle('fast', fast);
     q('fill').style.clipPath = fast ? '' : `inset(0 ${(100 - (st.run ? clamp(st.p, 0, 1) : 0) * 100).toFixed(2)}% 0 0)`;
     setText(q('rev'), owned ? (fast ? W(rev / cyc) : J(rev)) : '—');
-    setText(q('time'), owned ? (fast ? 'nonstop' : clock(st.run ? (1 - st.p) * cyc : cyc)) : clock(cyc));
+    setText(q('time'), !play ? '—' : owned ? (fast ? 'nonstop' : clock(st.run ? (1 - st.p) * cyc : cyc)) : clock(cyc));
     const k = buyCount(s), kk = Math.max(1, k), c = priceN(s, kk);
     setText(q('bw'), owned ? 'Buy ' : 'Build'); q('bw').classList.toggle('opt', owned);
     setText(q('bl'), owned ? `×${kk}` : '');
-    setText(q('bc'), J(c));
-    off(card.querySelector('.bbtn'), k < 1 || c > S.J);
+    setText(q('bc'), play ? J(c) : '—');
+    off(card.querySelector('.bbtn'), !play || k < 1 || c > S.J);
     const m = nextMilestone(st.n);
     if (m) {
-      const prev = [0, ...SPEED_AT, ...PROFIT_AT].filter(a => a <= st.n).pop();
+      const prev = m.at > 1000 ? m.at - 250 : [0, ...SPEED_AT, ...PROFIT_AT].filter(a => a <= st.n).pop();
       setText(q('msa'), String(m.at)); setText(q('msk'), m.kind.split(' ')[0] + ' ');
       q('mbar').style.width = ((st.n - prev) / (m.at - prev) * 100).toFixed(1) + '%';
     } else { setText(q('msa'), 'Max'); setText(q('msk'), 'all '); q('mbar').style.width = '100%'; }
   }
 }
 
+// The Kardashev bar runs to Type III, then to Type IV once the endgame opens
+function layoutKbar() {
+  const km = kMax();
+  document.querySelectorAll('#kbar .tick').forEach(t => {
+    const k = +t.dataset.kt, show = k <= km, last = k === km;
+    t.hidden = !show;
+    t.classList.toggle('end', last);
+    t.style.left = last ? 'calc(100% - 2px)' : (k / km * 100).toFixed(1) + '%';
+  });
+}
 function renderHud() {
   setText($('bank'), J(S.J));
   setText($('watts'), W(M.watts));
   const K = (Math.log10(Math.max(M.watts, 0.01)) - 6) / 10;
   setText($('ktype'), `Type ${K < 0 ? '−' : ''}${Math.abs(K).toFixed(2)}`);
-  $('kfill').style.clipPath = `inset(0 ${(100 - clamp(K / 3, 0, 1) * 100).toFixed(2)}% 0 0)`;
+  $('kfill').style.clipPath = `inset(0 ${(100 - clamp(K / kMax(), 0, 1) * 100).toFixed(2)}% 0 0)`;
   let ci = -1;
   CMP.forEach((c, i) => { if (M.auto >= c[0] || M.watts >= c[0]) ci = i; });
   const cur = ci >= 0 ? CMP[ci] : null, next = CMP[ci + 1];
@@ -1025,13 +1340,15 @@ function renderHud() {
 
 function renderUpgrades() {
   const box = $('upbox');
-  const list = UPS.filter(u => !upDone(u));
-  rebuildIf('ups', list.map(u => u.id).join(','), 'side', () => {
+  const list = UPS.filter(u => !upDone(u) && upShown(u)), rx = resX();
+  const desc = u => u.kind === 'res' ? `${SI[u.src].name} profit ×${rx}.` : u.kind === 'glob' ? `Profit ×${rx} for every source.` : u.desc;
+  const empty = inA('dark') ? 'Research does nothing in the Dark Ages. Operators only.' : inA('strike') && !list.length ? 'Nothing to buy while the operators are on strike.' : 'Everything is researched. Time for a Big Crunch.';
+  rebuildIf('ups', list.map(u => u.id).join(',') + '|' + rx + '|' + (S.ui.numfmt || ''), 'side', () => {
     box.innerHTML = list.map(u => `
       <button type="button" class="up" data-act="up" data-v="${u.id}">
         <span class="up-top"><span class="kind ${u.kind}">${KIND[u.kind]}</span><span class="cost">${J(u.cost)}</span></span>
-        <strong>${esc(u.name)}</strong><span class="up-d">${esc(u.desc)}</span>
-      </button>`).join('') || '<p class="note">Everything is researched. Time for a Big Crunch.</p>';
+        <strong>${esc(u.name)}</strong><span class="up-d">${esc(desc(u))}</span>
+      </button>`).join('') || `<p class="note">${empty}</p>`;
   });
   box.querySelectorAll('[data-act="up"]').forEach(b => {
     const u = UI[b.dataset.v], done = upDone(u), can = !done && S.J >= u.cost;
@@ -1064,9 +1381,9 @@ function renderCrunch() {
   setText(q('dm'), num(S.dm));
   setText(q('dmb'), `+${num(Math.round(S.dm * dmRate() * 100))}% profit`);
   setText(q('claim'), '+' + num(claim));
-  setText(q('next'), `next: ${J(lifeFor(S.dmEarned + claim + 1))}`);
+  setText(q('next'), `next: ${J(dmNeed(S.dmEarned + claim + 1))}`);
   const cb = q('cb');
-  setText(cb, claim < 1 ? `Bank ${J(lifeFor(S.dmEarned + 1))} total to collapse` : crunchArmed ? 'Click again to collapse it all' : `Collapse the universe (+${num(claim)})`);
+  setText(cb, claim < 1 ? `Bank ${J(dmNeed(S.dmEarned + 1))} this era to collapse` : crunchArmed ? 'Click again to collapse it all' : `Collapse the universe (+${num(claim)})`);
   off(cb, claim < 1);
   el.querySelectorAll('[data-act="dm"]').forEach(b => {
     const d = DI[b.dataset.v], done = hasD(d.id);
@@ -1077,35 +1394,88 @@ function renderCrunch() {
 }
 
 function renderNet() {
-  const el = $('net');
-  rebuildIf('net', 'static', null, () => {
+  const el = $('net'), all = allAt(), more = hasA('hyper');
+  rebuildIf('net', all.length + '|' + more, null, () => {
     el.innerHTML = `<div class="ph"><h2>Network</h2><span class="lbl">Milestones</span></div>
-      <p class="note">Every 10, 25, 50, 100, 150, 200, 300 and 400 units of one source make it run twice as fast. When every source reaches 25, 50, 100, 200, 300 or 400, all profit doubles.</p>
+      <p class="note">Every 10, 25, 50, 100, 150, 200, 300 and 400 units of one source make it run twice as fast, and 500 through 1,000 make it earn twice as much${more ? ', then every 250 more' : ''}. When every source reaches ${all.slice(0, -1).join(', ')} or ${num(all[all.length - 1])}, all profit doubles.</p>
       <div class="netline"><span data-f="goal"></span><span data-f="low"></span></div>
       <div class="netline"><span>Total profit multiplier</span><span data-f="mult"></span></div>
       <div class="netline"><span>Sources on autopilot</span><span data-f="ops"></span></div>`;
   });
-  const q = f => el.querySelector(`[data-f="${f}"]`), lo = minOwned(), nx = ALL_AT.find(a => a > lo);
-  const weakest = SRC.reduce((a, s) => S.src[s.id].n < S.src[a.id].n ? s : a, SRC[0]);
+  const q = f => el.querySelector(`[data-f="${f}"]`), lo = minOwned(), nx = all.find(a => a > lo);
+  const weakest = SRC.filter(inPlay).reduce((a, s) => S.src[s.id].n < S.src[a.id].n ? s : a, SRC[0]);
   setText(q('goal'), nx ? `All sources at ${nx}` : 'Every network milestone reached');
   setText(q('low'), nx ? `${weakest.name.split(' ')[0]} ${num(lo)}/${nx}` : '');
   setText(q('mult'), '×' + num(Math.round(M.global * 100) / 100));
-  setText(q('ops'), `${SRC.filter(s => S.src[s.id].op).length} of ${SRC.length}`);
+  const pl = SRC.filter(inPlay);
+  setText(q('ops'), `${pl.filter(s => opOn(S.src[s.id])).length} of ${pl.length}`);
+}
+
+// ---- Heat Death panel: shown from the second universe on ----
+let heatArmed = false, heatTimer = null, anomArmed = '', leaveArmed = false;
+const pct = (x, of) => Math.min(99, Math.floor(x / of * 100)) + '%';
+function anomLine() {
+  const a = AI[S.anom];
+  if (a) return [`Anomaly: ${a.name}`, `${pct(S.runLife, a.goal)} of ${J(a.goal)}`];
+  if (!S.deaths) return ['Anomalies', 'after a heat death'];
+  return ['Anomalies fixed', `${S.anomDone.length} of ${ANOM.length}`];
+}
+function lightLine() {
+  if (S.won) return ['The Last Light', 'the universe is on'];
+  if (!S.k3) return ['The Last Light', 'at Type III'];
+  return ['The Last Light', `stage ${S.ll + 1} of ${LIGHT.length}: ${J(LIGHT[S.ll].cost)}`];
+}
+function renderHeat() {
+  const el = $('heat'), show = S.universe >= 2 || S.deaths > 0;
+  if (el.hidden === show) el.hidden = !show;
+  if (!show) return;
+  rebuildIf('heat', 'static', null, () => {
+    el.innerHTML = `
+      <div class="ph"><h2>Heat Death</h2><span class="lbl" data-f="era"></span></div>
+      <p class="note">Let the universe run down for good. Everything resets, even dark matter and its upgrades. Quintessence carries over and rewrites the laws of physics.</p>
+      <div class="kv">
+        <div><span class="lbl">Quintessence</span><b class="q" data-f="q"></b><span class="lbl" data-f="qs"></span></div>
+        <div><span class="lbl">Wind down for</span><b class="q" data-f="qc"></b><span class="lbl" data-f="qn"></span></div>
+      </div>
+      <button type="button" class="btn cold" data-act="heat" data-f="hb"></button>
+      <button type="button" class="btn ghost gap" data-act="open" data-v="multi">Laws, anomalies, Last Light</button>
+      <div class="hlines">
+        <div class="netline"><span data-f="a1"></span><span data-f="a2"></span></div>
+        <div class="netline"><span data-f="l1"></span><span data-f="l2"></span></div>
+      </div>`;
+  });
+  const q = f => el.querySelector(`[data-f="${f}"]`), claim = qClaim(), ready = S.eraBestW >= HD_W;
+  setText(q('era'), `Era #${num(S.deaths + 1)}`);
+  setText(q('q'), num(S.q));
+  setText(q('qs'), `${num(S.qEarned)} earned in all`);
+  setText(q('qc'), '+' + num(claim));
+  setText(q('qn'), ready ? `next: ${J(qNeed(claim + 1))}` : `needs ${W(HD_W)} output`);
+  const hb = q('hb');
+  setText(hb, claim < 1 ? `Reach ${W(HD_W)} (Type II) first` : heatArmed ? 'Click again. Everything resets.' : `Let it all wind down (+${num(claim)})`);
+  off(hb, claim < 1);
+  const [a1, a2] = anomLine(), [l1, l2] = lightLine();
+  setText(q('a1'), a1); setText(q('a2'), a2); setText(q('l1'), l1); setText(q('l2'), l2);
 }
 
 let importArmed = false, resetArmed = false, cpullArmed = false, crestArmed = false, armTimer = null;
 // ================= Windows: Stats and Settings =================
 let modal = null, modalOpener = null;
-const RES_TOTAL = UPS.filter(u => u.kind !== 'op').length;
-const MS_TOTAL = SRC.length * (SPEED_AT.length + PROFIT_AT.length) + ALL_AT.length;
+const resTotal = () => UPS.filter(u => u.kind !== 'op' && (!u.src || live(SI[u.src]))).length;
+const msTotal = () => SRC.filter(live).length * (SPEED_AT.length + PROFIT_AT.length) + allAt().length;
 const kOf = w => (Math.log10(Math.max(w, 0.01)) - 6) / 10;
 const kText = w => { const K = kOf(w); return `Type ${K < 0 ? '−' : ''}${Math.abs(K).toFixed(2)}`; };
 function milestonesReached() {
   let n = 0;
-  for (const s of SRC) { const c = S.src[s.id].n; SPEED_AT.forEach(a => { if (c >= a) n++; }); PROFIT_AT.forEach(a => { if (c >= a) n++; }); }
-  const lo = minOwned(); ALL_AT.forEach(a => { if (lo >= a) n++; });
+  for (const s of SRC) { if (!live(s)) continue; const c = S.src[s.id].n; SPEED_AT.forEach(a => { if (c >= a) n++; }); PROFIT_AT.forEach(a => { if (c >= a) n++; }); }
+  const lo = minOwned(); allAt().forEach(a => { if (lo >= a) n++; });
   return n;
 }
+const LATE_TILES = [
+  ['Era', () => '#' + num(S.deaths + 1), () => `${num(S.deaths)} heat death${S.deaths === 1 ? '' : 's'} so far`],
+  ['Quintessence', () => num(S.q), () => `${num(S.qEarned)} earned in all`],
+  ['Anomalies fixed', () => `${S.anomDone.length} of ${ANOM.length}`, () => S.won ? 'The universe is back on' : `Last Light: ${S.ll} of ${LIGHT.length} stages`]
+];
+const tiles = () => S.deaths > 0 || S.qEarned > 0 ? TILES.concat(LATE_TILES) : TILES;
 const TILES = [
   ['Output now', () => W(M.watts), () => kText(M.watts)],
   ['Best output ever', () => W(S.bestW), () => kText(S.bestW)],
@@ -1113,8 +1483,8 @@ const TILES = [
   ['All universes', () => J(S.life), () => `${clock(S.t)} played`],
   ['Dark matter', () => num(S.dm), () => `${num(S.dmEarned)} earned in all`],
   ['Universe', () => '#' + num(S.universe), () => `${num(S.universe - 1)} collapsed so far`],
-  ['Units built', () => num(SRC.reduce((t, s) => t + S.src[s.id].n, 0)), () => `${milestonesReached()} of ${MS_TOTAL} milestones`],
-  ['Operators hired', () => `${SRC.filter(s => S.src[s.id].op).length} of ${SRC.length}`, () => `${S.res.length} of ${RES_TOTAL} research done`],
+  ['Units built', () => num(SRC.reduce((t, s) => t + S.src[s.id].n, 0)), () => `${milestonesReached()} of ${msTotal()} milestones`],
+  ['Operators hired', () => `${SRC.filter(s => live(s) && S.src[s.id].op).length} of ${SRC.filter(live).length}`, () => `${S.res.length} of ${resTotal()} research done`],
   ['Manual runs', () => num(S.clicks), () => 'clicks on sources']
 ];
 const SETS = [
@@ -1135,33 +1505,38 @@ function setSetting(k, v) {
   if (k === 'chatter' && v !== 'off') say(v === 'all' ? 'Back to chatting! Where was I?' : 'Fine. Only the big stuff.', true);
   applySettings();
 }
+const updatePitch = () => setText($('pitch'), S.won ? 'You switched the universe back on. Keep it running.' : 'Harvest every joule before the universe winds down.');
 function applySettings() {
   document.documentElement.classList.toggle('calm', calm());
+  layoutKbar(); updatePitch();
   $('sky').hidden = !S.ui.stars;
   if (S.ui.stars) drawSky(performance.now());
   if (S.ui.chatter === 'off') setText($('bubble'), 'Captain Nibbles is concentrating. Quietly.');
   Object.values(PENS).forEach(p => p.key = '');
   sig = {};
 }
+const WIN_TITLES = { stats: 'Stats', settings: 'Settings', multi: 'Multiverse', end: 'The Last Light' };
 function openModal(kind, opener) {
-  if (kind !== 'stats' && kind !== 'settings') return;
+  if (!WIN_TITLES[kind]) return;
   modal = kind; modalOpener = opener || null;
-  setText($('winTitle'), kind === 'stats' ? 'Stats' : 'Settings');
+  setText($('winTitle'), WIN_TITLES[kind]);
   $('modal').hidden = false;
   buildModal();
   $('win').focus();
   if (kind === 'stats') say(pick(['Numbers! My second favorite snack.', 'Ooh, graphs. Very official.', 'Let me see the quarterly joules.']), true);
+  if (kind === 'multi' && S.deaths > 0) say(pick(['Careful. That is the physics drawer.', 'Pick a law, any law.', 'Anomalies are just universes with opinions.']), true);
+  if (kind === 'end') endingAnim();
 }
 function closeModal() {
   if (!modal) return;
-  modal = null; importArmed = resetArmed = cpullArmed = crestArmed = false;
+  modal = null; importArmed = resetArmed = cpullArmed = crestArmed = leaveArmed = false; anomArmed = '';
   $('modal').hidden = true;
   if (modalOpener && document.contains(modalOpener)) modalOpener.focus();
 }
 function buildModal() {
   const body = $('winBody');
   sig.hist = undefined;
-  body.innerHTML = modal === 'stats' ? statsHTML() : settingsHTML();
+  body.innerHTML = modal === 'stats' ? statsHTML() : modal === 'settings' ? settingsHTML() : modal === 'multi' ? multiHTML() : endHTML();
   if (modal === 'stats') {
     const cv = $('trend'), cw = cv.parentElement.clientWidth - 20, sc = cw >= 540 ? 3 : 2, lw = clamp(Math.floor(cw / sc), 60, 180);
     cv.width = lw; cv.style.width = lw * sc + 'px'; cv.style.height = 48 * sc + 'px';
@@ -1171,10 +1546,10 @@ function buildModal() {
   if (modal === 'settings') $('vol').value = S.ui.vol;
   renderModal();
 }
-function renderModal() { if (modal === 'stats') renderStats(); else if (modal === 'settings') renderSettings(); }
+function renderModal() { if (modal === 'stats') renderStats(); else if (modal === 'settings') renderSettings(); else if (modal === 'multi') renderMulti(); }
 
 function statsHTML() {
-  return `<div class="stiles">${TILES.map((t, i) => `<div class="stile"><span class="lbl">${t[0]}</span><b data-f="t${i}"></b><span class="sub" data-f="u${i}"></span></div>`).join('')}</div>
+  return `<div class="stiles">${tiles().map((t, i) => `<div class="stile"><span class="lbl">${t[0]}</span><b data-f="t${i}"></b><span class="sub" data-f="u${i}"></span></div>`).join('')}</div>
     <h3 class="wh">Output, last <span data-f="tmins">30</span> minutes</h3>
     <div class="trend">
       <div class="trend-row"><span>Peak <b data-f="thi"></b></span><span>log scale · one bar every 10 s</span></div>
@@ -1190,10 +1565,11 @@ function statsHTML() {
 }
 function renderStats() {
   const body = $('winBody'), q = f => body.querySelector(`[data-f="${f}"]`);
-  TILES.forEach((t, i) => { setText(q('t' + i), t[1]()); setText(q('u' + i), t[2]()); });
+  tiles().forEach((t, i) => { if (q('t' + i)) { setText(q('t' + i), t[1]()); setText(q('u' + i), t[2]()); } });
   body.querySelectorAll('tr[data-s]').forEach(tr => {
     const s = SI[tr.dataset.s], st = S.src[s.id], cyc = M.cyc[s.id], rate = st.n ? M.rev[s.id] / cyc : 0;
-    const locked = st.n < 1, key = locked ? 'L' : 'U';
+    if (tr.hidden === live(s)) tr.hidden = !live(s);
+    const locked = st.n < 1 || !inPlay(s), key = locked ? 'L' : 'U';
     if (tr.dataset.drawn !== key) {
       const c = tr.querySelector('canvas').getContext('2d'); c.clearRect(0, 0, 24, 24);
       SPRITES[s.id](pen(c), 0, false);
@@ -1203,16 +1579,19 @@ function renderStats() {
     tr.classList.toggle('locked', locked);
     const cell = f => tr.querySelector(`[data-f="${f}"]`);
     setText(cell('n'), num(st.n));
-    setText(cell('c'), locked ? '—' : st.op && cyc < 0.25 ? 'nonstop' : clock(cyc));
+    setText(cell('c'), locked ? '—' : opOn(st) && cyc < 0.25 ? 'nonstop' : clock(cyc));
     setText(cell('w'), locked ? '—' : W(rate));
-    setText(cell('p'), locked ? '—' : st.op ? (M.auto ? Math.round(rate / M.auto * 100) + '%' : '0%') : 'manual');
+    setText(cell('p'), locked ? '—' : opOn(st) ? (M.auto ? Math.round(rate / M.auto * 100) + '%' : '0%') : 'manual');
   });
   drawTrend();
   const box = $('histBox');
-  rebuildIf('hist', String(S.hist.length) + '|' + (S.ui.numfmt || ''), null, () => {
-    box.innerHTML = S.hist.length ? `<table class="st"><thead><tr><th>Universe</th><th>Lasted</th><th>Dark matter</th><th>Best output</th></tr></thead><tbody>
-      ${S.hist.slice().reverse().map(h => `<tr><td>#${num(h.u)}</td><td>${clock(h.dur)}</td><td>+${num(h.dm)}</td><td>${W(h.w)}</td></tr>`).join('')}</tbody></table>`
-      : '<p class="note" style="margin:0">No universe has collapsed yet. Your first Big Crunch will show up here.</p>';
+  rebuildIf('hist', String(S.hist.length) + '|' + S.ehist.length + '|' + S.universe + '|' + (S.ui.numfmt || ''), null, () => {
+    const uni = h => `#${num(h.u)}${h.a && AI[h.a] ? ' · ' + esc(AI[h.a].name) : ''}`;
+    box.innerHTML = (S.hist.length ? `<table class="st"><thead><tr><th>Universe</th><th>Lasted</th><th>Dark matter</th><th>Best output</th></tr></thead><tbody>
+      ${S.hist.slice().reverse().map(h => `<tr><td>${uni(h)}</td><td>${clock(h.dur)}</td><td>${h.hd ? 'heat death' : '+' + num(h.dm)}</td><td>${W(h.w)}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="note" style="margin:0">No universe has collapsed yet. Your first Big Crunch will show up here.</p>')
+      + (S.ehist.length ? `<h3 class="wh">Era log</h3><table class="st"><thead><tr><th>Era</th><th>Lasted</th><th>Quintessence</th><th>Best output</th></tr></thead><tbody>
+      ${S.ehist.slice().reverse().map(h => `<tr><td>#${num(h.e)}</td><td>${clock(h.dur)}</td><td>+${num(h.q)}</td><td>${W(h.w)}</td></tr>`).join('')}</tbody></table>` : '');
   });
 }
 function drawTrend() {
@@ -1269,13 +1648,91 @@ function renderSettings() {
   setText(q('crest'), crestArmed ? 'Click again to undo' : 'Undo last cloud load');
 }
 
-function render(now = performance.now()) { renderHud(); renderSources(now); renderUpgrades(); renderCrunch(); renderNet(); renderModal(); }
+// ---- Multiverse window: laws of physics, anomalies, the Last Light ----
+function multiHTML() {
+  return `<div class="kv">
+      <div><span class="lbl">Quintessence</span><b class="q" data-f="mq"></b><span class="lbl" data-f="mqs"></span></div>
+      <div><span class="lbl">This era</span><b data-f="me"></b><span class="lbl" data-f="mes"></span></div>
+    </div>
+    <h3 class="wh">Laws of physics</h3>
+    <p class="note">Quintessence rewrites how the next universes work. Laws stay through every Big Crunch and every heat death.</p>
+    <div class="mlist">${LAWS.map(L => `<button type="button" class="dmi law" data-act="law" data-v="${L.id}"><strong>${esc(L.name)}<span class="lv" data-f="lv"></span></strong><span class="cost" data-f="c"></span><span class="up-d" data-f="d"></span></button>`).join('')}</div>
+    <h3 class="wh">Anomalies</h3>
+    <p class="note">Collapse into a universe where physics is broken. Bank the goal in that one universe to fix it for good and keep its reward. Entering is a Big Crunch, so you collect any dark matter waiting for you.</p>
+    <div class="mlist">${ANOM.map(a => `<div class="arow" data-a="${a.id}"><div><strong>${esc(a.name)}</strong><span class="up-d">${esc(a.rule)}</span><span class="rw">${esc(a.reward)}: ${esc(a.rdesc)}</span><span class="st" data-f="st"></span></div><button type="button" class="btn" data-act="anom" data-v="${a.id}" data-f="b"></button></div>`).join('')}</div>
+    <h3 class="wh">The Last Light</h3>
+    <p class="note">Undo the heat death itself. Fund five stages with energy from your bank. Each one is permanent, survives every reset, and multiplies all profit by 10. Opens at Kardashev Type III (${W(K3_W)}).</p>
+    <div class="mlist">${LIGHT.map((st, i) => `<div class="arow" data-l="${i}"><div><strong>${i + 1}. ${esc(st.name)}</strong><span class="up-d">${i === LIGHT.length - 1 ? 'Switch the universe back on.' : 'All profit ×10, for good.'}</span><span class="st" data-f="st"></span></div><button type="button" class="btn" data-act="light" data-f="b"></button></div>`).join('')}</div>
+    <button type="button" class="btn ghost gap" data-act="replay" data-f="replay" hidden>Watch the ending again</button>`;
+}
+function renderMulti() {
+  const body = $('winBody'), q = f => body.querySelector(`[data-f="${f}"]`);
+  setText(q('mq'), num(S.q));
+  setText(q('mqs'), `${num(S.qEarned)} earned in all`);
+  setText(q('me'), '#' + num(S.deaths + 1));
+  setText(q('mes'), `best ${W(S.eraBestW)}`);
+  body.querySelectorAll('[data-act="law"]').forEach(b => {
+    const L = LI[b.dataset.v], l = lv(L.id), maxed = lawMaxed(L);
+    setText(b.querySelector('[data-f="lv"]'), l ? (L.max ? ` ${l}/${L.max}` : ` lv ${l}`) : '');
+    setText(b.querySelector('[data-f="c"]'), maxed ? 'Max' : num(lawCost(L)));
+    setText(b.querySelector('[data-f="d"]'), lawDesc(L, maxed ? l - 1 : l));
+    b.classList.toggle('done', maxed);
+    off(b, maxed || S.q < lawCost(L));
+  });
+  body.querySelectorAll('.arow[data-a]').forEach(row => {
+    const a = AI[row.dataset.a], fixed = hasA(a.id), here = inA(a.id), b = row.querySelector('[data-f="b"]');
+    row.classList.toggle('fixed', fixed);
+    setText(row.querySelector('[data-f="st"]'), fixed ? 'Fixed' : here ? `Goal: ${pct(S.runLife, a.goal)} of ${J(a.goal)} banked` : `Goal: bank ${J(a.goal)} in that universe`);
+    setText(b, fixed ? 'Fixed' : !S.deaths ? 'After a heat death' : here ? (leaveArmed ? 'Click again' : 'Leave') : anomArmed === a.id ? 'Click again' : 'Enter');
+    b.classList.toggle('ghost', here);
+    off(b, fixed || !S.deaths);
+  });
+  body.querySelectorAll('.arow[data-l]').forEach(row => {
+    const i = +row.dataset.l, st = LIGHT[i], done = i < S.ll, next = i === S.ll, b = row.querySelector('[data-f="b"]');
+    row.classList.toggle('fixed', done);
+    setText(row.querySelector('[data-f="st"]'), done ? 'Built' : `Costs ${J(st.cost)}`);
+    setText(b, done ? 'Built' : !S.k3 ? 'At Type III' : next ? 'Fund it' : 'Locked');
+    off(b, done || !S.k3 || !next || S.J < st.cost);
+  });
+  q('replay').hidden = !S.won;
+}
+
+// ---- The ending ----
+function endHTML() {
+  return `<canvas class="endcv px" id="endcv" width="160" height="80" aria-hidden="true"></canvas>
+    <div class="endtxt">
+      <p>A googol years in, the last star went dark.</p>
+      <p>Somewhere in the cold, a hamster wheel squeaked.</p>
+      <p>Heat Death Holdings flipped the big switch.</p>
+      <h3>The universe is back on.</h3>
+      <p class="sub">${clock(S.t)} played · ${num(S.universe)} universes · ${num(S.deaths)} heat death${S.deaths === 1 ? '' : 's'}</p>
+      <button type="button" class="btn" data-act="close">Keep playing</button>
+    </div>`;
+}
+function endingAnim() {
+  const cv = $('endcv'); if (!cv) return;
+  const c = cv.getContext('2d'), w = cv.width, h = cv.height, g = pen(c);
+  const P = Array.from({ length: 300 }, () => ({ x: Math.random() * w, y: Math.random() * h, at: 1.5 + Math.random() * 5, k: pick(['w', 'w', 'y', 'o', 'P', 'B', 'v', 'G']) }));
+  const t0 = performance.now();
+  const frame = () => {
+    if (modal !== 'end' || !document.contains(cv)) return;
+    const t = calm() ? 99 : (performance.now() - t0) / 1000;
+    c.fillStyle = '#000'; c.fillRect(0, 0, w, h);
+    if (t > 0.6) { const r = Math.min(9, (t - 0.6) * 5); g.disc(w / 2, h / 2, r, 'o'); g.disc(w / 2, h / 2, r * 0.7, 'y'); g.disc(w / 2, h / 2, r * 0.35, 'w'); }
+    else g.px(w / 2, h / 2, Math.floor(t * 10) % 2 ? 'w' : 'y');
+    for (const p of P) if (t > p.at) g.px(p.x, p.y, p.k);
+    if (t < 8) requestAnimationFrame(frame);
+  };
+  frame();
+}
+
+function render(now = performance.now()) { renderHud(); renderSources(now); renderUpgrades(); renderCrunch(); renderHeat(); renderNet(); renderModal(); }
 
 // ================= Save codes =================
 const encodeSave = () => btoa(unescape(encodeURIComponent(JSON.stringify(S))));
 function decodeSave(code) { try { return hydrate(JSON.parse(decodeURIComponent(escape(atob(code.trim()))))); } catch (e) { return null; } }
 function replaceGame(s) { S = s; syncSets(); manualRate = 0; sig = {}; Object.values(PENS).forEach(p => p.key = ''); recalc(); applySettings(); if (modal) buildModal(); render(); save(); }
-function disarmLater() { clearTimeout(armTimer); armTimer = setTimeout(() => { importArmed = resetArmed = cpullArmed = crestArmed = false; }, 4000); }
+function disarmLater() { clearTimeout(armTimer); armTimer = setTimeout(() => { importArmed = resetArmed = cpullArmed = crestArmed = leaveArmed = false; anomArmed = ''; }, 4000); }
 
 // ================= Cloud save (Google sign-in + Firestore) =================
 // The module script at the bottom of the page connects Firebase when firebase-config.js is filled in.
@@ -1398,12 +1855,32 @@ document.addEventListener('click', e => {
   if (!el || el.getAttribute('aria-disabled') === 'true') return;
   const a = el.dataset.act, v = el.dataset.v;
   switch (a) {
-    case 'run': startRun(v); break;
+    case 'run': if (!startRun(v)) crank(v); break;
     case 'buy': buySource(v); break;
     case 'buyamt': S.ui.buy = v === 'next' || v === 'max' ? v : +v; break;
     case 'up': buyUpgrade(v); break;
     case 'dm': buyDM(v); break;
     case 'open': openModal(v, el); return;
+    case 'heat':
+      if (qClaim() < 1) break;
+      if (!heatArmed) { heatArmed = true; clearTimeout(heatTimer); heatTimer = setTimeout(() => { heatArmed = false; }, 4000); break; }
+      heatArmed = false; say('Goodnight, universe. See you on the other side.', true);
+      heatFx(() => { heatDeath(); recalc(); render(); cloudForcePush(); });
+      break;
+    case 'law': buyLaw(v); break;
+    case 'anom': {
+      if (!AI[v] || hasA(v) || !S.deaths) break;
+      if (inA(v)) {
+        if (!leaveArmed) { leaveArmed = true; disarmLater(); break; }
+        leaveArmed = false; leaveAnomaly(); break;
+      }
+      if (anomArmed !== v) { anomArmed = v; disarmLater(); break; }
+      anomArmed = ''; closeModal();
+      crunchFx(() => { crunch(v); recalc(); render(); cloudForcePush(); });
+      return;
+    }
+    case 'light': fundLight(); if (modal === 'end') return; break;
+    case 'replay': openModal('end', el); return;
     case 'close': closeModal(); return;
     case 'set': setSetting(el.dataset.k, v); break;
     case 'crunch':
@@ -1452,7 +1929,7 @@ $('modal').addEventListener('click', e => { if (e.target === e.currentTarget) cl
 // ================= Boot =================
 function applyOffline(quiet) {
   recalc();
-  const away = Math.min((Date.now() - S.saved) / 1000, 86400), earned = M.auto * away;
+  const td = hasA('slow'), away = Math.min((Date.now() - S.saved) / 1000, td ? 259200 : 86400), earned = M.auto * away * (td ? 3 : 1);
   if (away > 60 && earned >= 1) {
     gain(earned); S.saved = Date.now();
     if (!quiet) { toast(`While you were away, your operators banked ${J(earned)}.`, true); say('While you were gone, the operators kept the lights on.', true); }
@@ -1469,7 +1946,7 @@ function start(data) {
   applySettings();
   if (!fromHot) applyOffline(false);
   if (S.life < 1) say('Welcome aboard! Click the wheel. I will do the running.', true);
-  else if (!$('bubble').textContent) say(pick(QUIPS), true);
+  else if (!$('bubble').textContent) say(pick(quipPool()), true);
   sig = {};
   render();
   if (booted) return;

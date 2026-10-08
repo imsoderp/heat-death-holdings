@@ -4,6 +4,15 @@ A pixel-art idle game. You build an energy empire up the Kardashev scale, from a
 
 **Play:** <https://imsoderp.github.io/heat-death-holdings/>
 
+## How the game plays
+
+1. **Build sources.** Click energy sources to run them, buy more of them, hire operators to automate them, and research upgrades. Output climbs the Kardashev scale from a hamster wheel toward a star.
+2. **Big Crunch.** Collapse the universe for dark matter, which boosts all profit and buys permanent upgrades.
+3. **Heat Death** (endgame, once output reaches Kardashev Type II). Let the universe run down for good. Everything resets, including dark matter, and you earn quintessence. Your first heat death unlocks two galactic sources: the Quasar Siphon and the Universe Hatchery.
+4. **Laws of physics.** Spend quintessence on permanent upgrades: Planck, Hubble, gravitational and Boltzmann constants, and a low-entropy head start.
+5. **Anomalies.** Six challenge universes with broken physics: operator strike, slow light, a pocket universe, hyperinflation, the Dark Ages and an entropy leak. Fix each one to earn a permanent reward.
+6. **The Last Light.** At Kardashev Type III, fund five stages that undo the heat death. The last stage switches the universe back on and plays the ending.
+
 ```
 index.html           the whole game
 firebase-config.js   this project's Firebase settings (public by design)
