@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heat Death Holdings</title>
+<meta name="description" content="An idle energy tycoon in pixel art. Climb the Kardashev scale from a hamster wheel to zero-point energy, then collapse the universe for dark matter.">
+<meta property="og:title" content="Heat Death Holdings">
+<meta property="og:description" content="An idle energy tycoon in pixel art. Climb the Kardashev scale from a hamster wheel to zero-point energy, then collapse the universe for dark matter.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b1026">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+/* Layout: a 16-bit arcade cabinet. Mascot + speech bubble on top, a scoreboard HUD pinned under it, ten fixed-size pixel-art source cards, and a side column (upgrades scroll box, Big Crunch, network). Stats and Settings open as windows on top. Every live element has a fixed size so nothing moves under the cursor.
+   Deliberately a single dark "night sky" look; palette is a classic 16-color fantasy-console set. */
+:root {
+  --space: #0b1026;
+  --panel: #1d2b53;
+  --panel-2: #141d3c;
+  --edge: #83769c;
+  --ink: #fff1e8;
+  --muted: #c2c3c7;
+  --dim: #83769c;
+  --yellow: #ffec27;
+  --orange: #ffa300;
+  --brown: #ab5236;
+  --red: #ff004d;
+  --pink: #ff77a8;
+  --blue: #29adff;
+  --green: #00e436;
+  --plum: #7e2553;
+  --peach: #ffccaa;
+  --font-title: "Press Start 2P", "Courier New", monospace;
+  --font-pixel: "Pixelify Sans", "Courier New", monospace;
+  --font-term: "VT323", "Courier New", monospace;
+  --font-num: "VT323", "Courier New", monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+html { background: var(--space); }
+body { background: var(--space); color: var(--ink); font-family: var(--font-term); font-size: 19px; line-height: 1.15; padding-inline: 16px; padding-block: 14px 48px; -webkit-font-smoothing: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+h1, h2, h3 { margin: 0; font-weight: normal; }
+p { margin: 0; }
+canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; image-rendering: pixelated; }
+.lbl { font-family: var(--font-term); font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.off { opacity: 0.45; cursor: not-allowed; }
+/* pixel "rounded" outline: four offset shadows draw a notched-corner border outside the box */
+.box { background: var(--panel); box-shadow: 0 -3px 0 0 var(--edge), 0 3px 0 0 var(--edge), -3px 0 0 0 var(--edge), 3px 0 0 0 var(--edge); }
+
+.app { position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "hud" "buyrow" "sources" "side"; }
+.buyrow { grid-area: buyrow; display: none; justify-content: space-between; align-items: center; gap: 10px; }
+.row-ib { display: flex; gap: 6px; }
+.title { grid-area: title; } .hud { grid-area: hud; } .sources { grid-area: sources; } .side { grid-area: side; }
+@media (min-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); grid-template-areas: "title title" "hud hud" "sources side"; align-items: start; }
+}
+
+/* ---- Title, mascot, speech bubble (fixed height) ---- */
+.title { display: grid; grid-template-columns: 72px auto minmax(0, 1fr); gap: 0 18px; align-items: center; height: 84px; }
+#mascot { width: 72px; height: 72px; }
+h1 { font-family: var(--font-title); font-size: 20px; line-height: 1.3; color: var(--yellow); text-shadow: 3px 3px 0 var(--brown); white-space: nowrap; }
+.pitch { color: var(--muted); font-size: 19px; margin-top: 4px; white-space: nowrap; }
+.bubble { position: relative; height: 66px; padding: 7px 12px; display: grid; align-content: start; gap: 1px; margin-left: 10px; min-width: 0; }
+.bubble::before { content: ""; position: absolute; left: -12px; top: 22px; width: 9px; height: 12px; background: var(--edge); clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+.bubble b { font-family: var(--font-pixel); font-weight: 600; font-size: 13px; color: var(--pink); letter-spacing: 0.04em; text-transform: uppercase; }
+#bubble { font-size: 19px; line-height: 1.05; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+@media (max-width: 859px) {
+  .title { grid-template-columns: 48px minmax(0, 1fr); grid-template-areas: "m h" "m b"; height: auto; gap: 8px 12px; align-items: start; }
+  #mascot { grid-area: m; width: 48px; height: 48px; margin-top: 4px; }
+  .tt { grid-area: h; } .bubble { grid-area: b; margin-left: 6px; height: 74px; }
+  .bubble::before { top: 10px; }
+  #bubble { -webkit-line-clamp: 3; }
+  h1 { font-size: 13px; }
+  .pitch { display: none; }
+}
+
+/* ---- HUD scoreboard ---- */
+.hud { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: rgba(11, 16, 38, 0.94); padding-block: 8px 10px; border-bottom: 3px dashed var(--panel);
+  display: grid; gap: 8px 20px; align-items: center; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "bank buy" "kard kard"; }
+@media (min-width: 860px) { .hud { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.45fr) auto; grid-template-areas: "bank kard buy"; height: 112px; } }
+.bank { grid-area: bank; min-width: 0; }
+.bank b { display: block; font-family: var(--font-title); font-size: clamp(22px, 5.6vw, 32px); line-height: 1.1; margin-top: 4px; color: var(--yellow); text-shadow: 3px 3px 0 var(--brown); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 3px; }
+.kard { grid-area: kard; min-width: 0; display: grid; gap: 3px; }
+.kline { display: flex; gap: 4px 12px; align-items: baseline; white-space: nowrap; overflow: hidden; }
+.kline b { font-family: var(--font-num); font-size: 27px; font-variant-numeric: tabular-nums; color: var(--green); }
+.kline b.k { color: var(--pink); }
+.kbar { position: relative; height: 12px; margin-top: 26px; background: var(--panel-2); box-shadow: 0 -2px 0 0 var(--edge), 0 2px 0 0 var(--edge), -2px 0 0 0 var(--edge), 2px 0 0 0 var(--edge); }
+.kbar i { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 6px, var(--panel-2) 6px 8px), linear-gradient(90deg, var(--blue), var(--green) 30%, var(--yellow) 55%, var(--orange) 75%, var(--pink)); clip-path: inset(0 100% 0 0); }
+.kbar .tick { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--muted); }
+.kbar .tick .ki { position: absolute; bottom: calc(100% + 1px); left: 50%; transform: translateX(-50%); width: 20px; height: 20px; }
+.kbar .tick .kt { position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); font-size: 15px; color: var(--muted); white-space: nowrap; }
+.kbar .tick.end .ki { left: auto; right: -2px; transform: none; }
+.cmp { font-size: 17px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmp span:first-child { color: var(--ink); }
+.buy { grid-area: buy; display: grid; gap: 6px; justify-items: end; }
+.buy-top { display: flex; gap: 10px; align-items: center; }
+.mini { font-family: var(--font-pixel); font-size: 12px; border: 0; background: var(--panel); color: var(--muted); padding: 3px 7px; width: 92px; box-shadow: inset -2px -2px 0 0 var(--panel-2); }
+.mini.on { color: var(--green); }
+.seg { display: inline-flex; gap: 3px; }
+.seg button { border: 0; background: var(--panel); padding: 6px 8px; font-family: var(--font-pixel); font-size: 14px; box-shadow: inset -3px -3px 0 0 var(--panel-2); }
+.seg button[aria-pressed="true"] { background: var(--orange); color: #241200; box-shadow: inset -3px -3px 0 0 var(--brown); }
+
+/* ---- Source cards ---- */
+.sources { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); min-width: 0; padding: 3px; }
+@media (min-width: 1120px) { .sources { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.src { height: 124px; display: grid; grid-template-columns: 84px minmax(0, 1fr); grid-template-rows: 22px 30px 38px; gap: 6px 12px; padding: 11px 12px; position: relative; }
+.run { grid-row: 1 / 4; width: 84px; height: 102px; border: 0; background: var(--panel-2); display: grid; justify-items: center; align-content: center; gap: 0; padding: 2px; position: relative; touch-action: manipulation; -webkit-tap-highlight-color: transparent; box-shadow: inset 3px 3px 0 0 #0b1026; }
+.run canvas { width: 72px; height: 72px; }
+.run .n { font-family: var(--font-num); font-size: 23px; line-height: 1; font-variant-numeric: tabular-nums; }
+.run .autotag { position: absolute; top: 3px; right: 3px; font-family: var(--font-pixel); font-size: 10px; font-weight: 700; background: var(--blue); color: #0b1026; padding: 1px 3px; }
+.run.ready { box-shadow: inset 0 0 0 3px var(--yellow); animation: blink 0.9s steps(1) infinite; }
+@keyframes blink { 50% { box-shadow: inset 0 0 0 3px var(--orange); } }
+.run.ready:active canvas { transform: translateY(2px); }
+.run.auto, .run.off { cursor: default; opacity: 1; }
+.srow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-width: 0; }
+.srow h3 { font-family: var(--font-pixel); font-weight: 600; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srow .lbl { overflow: hidden; text-overflow: ellipsis; color: var(--dim); }
+.srow .lbl.go { color: var(--yellow); }
+.src.locked h3 { color: var(--dim); }
+.pbar { position: relative; height: 30px; background: var(--panel-2); box-shadow: inset 3px 3px 0 0 #0b1026; overflow: hidden; }
+.pbar i { position: absolute; inset: 3px; background: repeating-linear-gradient(90deg, var(--blue) 0 8px, transparent 8px 10px); clip-path: inset(0 100% 0 0); }
+.pbar.fast i { clip-path: none; background: repeating-linear-gradient(90deg, var(--blue) 0 8px, #9fdcff 8px 10px, var(--blue) 10px 18px, transparent 18px 20px); background-size: 20px 100%; animation: flow 0.6s steps(10) infinite; }
+@keyframes flow { to { background-position: 20px 0; } }
+.pbar span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 9px; font-family: var(--font-num); font-size: 22px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pbar b { font-weight: 600; text-shadow: 2px 0 0 #0b1026, -2px 0 0 #0b1026, 0 2px 0 #0b1026, 0 -2px 0 #0b1026; }
+.brow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: center; }
+.bbtn { height: 36px; border: 0; background: var(--orange); color: #241200; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 10px 3px; font-family: var(--font-pixel); font-weight: 600; font-size: 15px; white-space: nowrap; min-width: 0; box-shadow: inset -3px -3px 0 0 var(--brown), inset 3px 3px 0 0 #ffd27a; }
+.bbtn:not(.off):active { box-shadow: inset 3px 3px 0 0 var(--brown); padding-top: 3px; padding-bottom: 0; }
+.bbtn span:last-child { overflow: hidden; text-overflow: ellipsis; font-family: var(--font-num); font-size: 21px; }
+.bbtn.off { background: var(--panel-2); color: var(--dim); box-shadow: inset 3px 3px 0 0 #0b1026; opacity: 1; }
+.ms { min-width: 0; display: grid; gap: 4px; }
+.ms .lbl { overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
+.mbar { height: 6px; background: var(--panel-2); }
+.mbar i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--pink) 0 4px, transparent 4px 5px); }
+.pop { position: absolute; z-index: 5; pointer-events: none; font-family: var(--font-num); font-size: 22px; color: var(--yellow); white-space: nowrap; text-shadow: 2px 0 0 #0b1026, -2px 0 0 #0b1026, 0 2px 0 #0b1026, 0 -2px 0 #0b1026; animation: rise 0.9s steps(9) forwards; }
+@keyframes rise { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-36px); } }
+.bit { position: absolute; z-index: 5; width: 6px; height: 6px; pointer-events: none; animation: burst 0.8s steps(8) forwards; }
+@keyframes burst { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+
+/* ---- Side column ---- */
+.side { display: grid; gap: 18px; min-width: 0; padding: 3px; }
+.panel { padding: 14px; min-width: 0; }
+.ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.ph h2 { font-family: var(--font-title); font-size: 13px; color: var(--yellow); text-shadow: 2px 2px 0 var(--brown); }
+.note { color: var(--muted); font-size: 18px; margin-bottom: 10px; }
+.upbox { height: 340px; overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 8px; align-content: start; padding: 2px 4px 2px 2px; scrollbar-color: var(--edge) var(--panel-2); }
+.up { text-align: left; border: 0; background: var(--panel-2); padding: 8px 10px; display: grid; gap: 2px; box-shadow: inset -3px -3px 0 0 #0b1026; }
+.up:hover:not(.off) { box-shadow: inset 0 0 0 3px var(--yellow); }
+.up-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.up strong { font-family: var(--font-pixel); font-weight: 600; font-size: 15px; }
+.up-d { font-size: 17px; color: var(--muted); }
+.cost { font-family: var(--font-num); font-size: 20px; white-space: nowrap; }
+.up.can .cost { color: var(--green); }
+.up.done { opacity: 0.35; }
+.kind { font-family: var(--font-pixel); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 5px; background: var(--panel); color: var(--muted); }
+.kind.op { background: var(--blue); color: #0b1026; }
+.kind.glob { background: var(--pink); color: #0b1026; }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 12px; }
+.kv > div { background: var(--panel-2); padding: 8px 10px; display: grid; min-width: 0; box-shadow: inset 3px 3px 0 0 #0b1026; }
+.kv .lbl { overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
+.kv b { font-family: var(--font-num); font-size: 31px; line-height: 1; color: var(--pink); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn { width: 100%; height: 42px; border: 0; background: var(--orange); color: #241200; font-family: var(--font-pixel); font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px 3px; box-shadow: inset -3px -3px 0 0 var(--brown), inset 3px 3px 0 0 #ffd27a; }
+.btn:not(.off):active { box-shadow: inset 3px 3px 0 0 var(--brown); padding: 3px 10px 0; }
+.btn.ghost { background: var(--panel-2); color: var(--ink); box-shadow: inset -3px -3px 0 0 #0b1026; }
+.btn.danger { color: var(--red); }
+.btn.off { background: var(--panel-2); color: var(--dim); box-shadow: inset 3px 3px 0 0 #0b1026; opacity: 1; }
+.dm { display: grid; gap: 6px; margin-top: 14px; }
+.dm h3 { font-family: var(--font-pixel); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.dmi { text-align: left; border: 0; background: var(--panel-2); padding: 7px 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; align-items: center; box-shadow: inset -3px -3px 0 0 #0b1026; }
+.dmi:hover:not(.off) { box-shadow: inset 0 0 0 3px var(--pink); }
+.dmi strong { font-family: var(--font-pixel); font-weight: 600; font-size: 14px; }
+.dmi .up-d { grid-column: 1; font-size: 16px; }
+.dmi .cost { grid-row: 1 / 3; grid-column: 2; color: var(--pink); }
+.dmi.done { background: var(--plum); opacity: 1; cursor: default; }
+.dmi.done .cost { color: var(--ink); }
+.netline { display: flex; justify-content: space-between; gap: 10px; font-size: 18px; padding-block: 4px; border-bottom: 2px dotted var(--panel-2); }
+.netline span:last-child { font-family: var(--font-num); font-size: 20px; white-space: nowrap; }
+details.panel summary { cursor: pointer; font-family: var(--font-title); font-size: 13px; color: var(--yellow); text-shadow: 2px 2px 0 var(--brown); }
+.code { width: 100%; min-height: 80px; font-family: var(--font-term); font-size: 15px; background: var(--panel-2); color: var(--ink); border: 0; padding: 8px; margin-block: 8px; resize: vertical; box-shadow: inset 3px 3px 0 0 #0b1026; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+
+.toasts { position: fixed; z-index: 30; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(380px, calc(100% - 38px)); display: grid; gap: 10px; pointer-events: none; }
+@media (min-width: 860px) { .toasts { left: max(19px, calc((100vw - 1320px) / 2 + 3px)); transform: none; width: 340px; } }
+.toast { font-size: 18px; background: var(--panel-2); padding: 7px 12px; box-shadow: 0 -3px 0 0 var(--blue), 0 3px 0 0 var(--blue), -3px 0 0 0 var(--blue), 3px 0 0 0 var(--blue), 6px 6px 0 0 rgba(0, 0, 0, 0.45); animation: fadein 0.25s steps(3); }
+.toast.hot { box-shadow: 0 -3px 0 0 var(--orange), 0 3px 0 0 var(--orange), -3px 0 0 0 var(--orange), 3px 0 0 0 var(--orange), 6px 6px 0 0 rgba(0, 0, 0, 0.45); }
+@keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 50; image-rendering: pixelated; }
+
+/* ---- Header buttons, windows, stats, settings ---- */
+.ibtn { display: inline-flex; align-items: center; gap: 6px; width: auto; height: 32px; padding: 0 9px; font-size: 13px; color: var(--ink); }
+.ibtn canvas { width: 24px; height: 24px; }
+.ibtn:hover { box-shadow: inset 0 0 0 2px var(--yellow); }
+.modal { position: fixed; inset: 0; z-index: 40; background: rgba(5, 8, 20, 0.74); display: grid; place-items: center; padding: 22px 16px; }
+.win { width: 100%; max-width: 660px; max-height: min(88vh, 860px); display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.win:focus { outline: none; }
+.winbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px 9px 14px; background: var(--panel-2); border-bottom: 3px solid var(--edge); }
+.winbar h2 { font-family: var(--font-title); font-size: 14px; color: var(--yellow); text-shadow: 2px 2px 0 var(--brown); }
+.xbtn { width: 36px; height: 30px; border: 0; background: var(--red); color: var(--ink); font-family: var(--font-title); font-size: 12px; box-shadow: inset -3px -3px 0 0 var(--plum); }
+.winbody { overflow-y: auto; overscroll-behavior: contain; padding: 14px; }
+.wh { font-family: var(--font-pixel); font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pink); margin: 20px 0 8px; }
+.wh:first-child { margin-top: 0; }
+.stiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 8px; }
+.stile { background: var(--panel-2); padding: 8px 10px; box-shadow: inset 3px 3px 0 0 #0b1026; display: grid; min-width: 0; }
+.stile .lbl { font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
+.stile b { font-family: var(--font-num); font-weight: normal; font-size: 29px; line-height: 1; color: var(--yellow); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stile .sub { font-size: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trend { background: var(--panel-2); padding: 8px 10px; box-shadow: inset 3px 3px 0 0 #0b1026; display: grid; gap: 4px; }
+.trend canvas { margin: 0 auto; }
+.trend-row { display: flex; justify-content: space-between; gap: 10px; font-size: 16px; color: var(--muted); white-space: nowrap; }
+.trend-row b { font-family: var(--font-num); font-weight: normal; color: var(--ink); }
+.twrap { overflow-x: auto; }
+table.st { width: 100%; border-collapse: collapse; }
+table.st th { font-family: var(--font-pixel); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 4px 6px; border-bottom: 2px solid var(--edge); white-space: nowrap; }
+table.st td { font-family: var(--font-num); font-size: 20px; text-align: right; padding: 3px 6px; border-bottom: 2px dotted var(--panel-2); white-space: nowrap; }
+table.st th:first-child, table.st td:first-child { text-align: left; }
+table.st td:first-child { font-family: var(--font-pixel); font-size: 14px; }
+table.st td canvas { display: inline-block; width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; }
+table.st tr.locked td { color: var(--dim); }
+.sets { display: grid; }
+.set { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 9px 0; border-bottom: 2px dotted var(--panel-2); }
+.set b { display: block; font-family: var(--font-pixel); font-weight: 600; font-size: 15px; }
+.set span { font-size: 17px; color: var(--muted); }
+.opts { display: inline-flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; }
+.opts button { border: 0; background: var(--panel-2); padding: 6px 9px; font-family: var(--font-pixel); font-size: 13px; box-shadow: inset -3px -3px 0 0 #0b1026; }
+.opts button[aria-pressed="true"] { background: var(--orange); color: #241200; box-shadow: inset -3px -3px 0 0 var(--brown); }
+.vol { width: 170px; accent-color: var(--orange); }
+.acct { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; min-width: 0; }
+.acct span { font-family: var(--font-pixel); font-size: 14px; color: var(--green); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.acct .btn { width: auto; flex: none; }
+html.calm .pop, html.calm .toast, html.calm .bit, html.calm .run.ready, html.calm .pbar.fast i { animation: none; }
+
+@media (max-width: 520px) {
+  .ibtn span { display: none; }
+  .ibtn { padding: 0 6px; }
+  .set { grid-template-columns: minmax(0, 1fr); }
+  .opts { justify-content: flex-start; }
+  .winbody { padding: 12px 10px; }
+  .stiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stile b { font-size: 24px; }
+  .stile .sub, .stile .lbl { font-size: 14px; }
+  .trend-row span:last-child { display: none; }
+  .srow .lbl, .cmp-next, .msk, .bbtn .bw.opt { display: none; }
+  .hud { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bank" "kard"; }
+  .hud .buy { display: none; }
+  .buyrow { display: flex; }
+  .brow { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 8px; }
+  .bbtn { padding: 0 7px 3px; gap: 6px; font-size: 14px; }
+  .ms .lbl { font-size: 14px; letter-spacing: 0.02em; }
+  .src { grid-template-columns: 78px minmax(0, 1fr); gap: 6px 10px; }
+  .run { width: 78px; }
+  .seg button { padding: 6px 6px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pop, .toast, .bit, .run.ready { animation: none; }
+  .pbar.fast i { animation: none; }
+}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="app">
+  <div class="title">
+    <canvas id="mascot" class="px" width="24" height="24" role="img" aria-label="Captain Nibbles, the hamster in charge"></canvas>
+    <div class="tt"><h1>Heat Death Holdings</h1><p class="pitch">Harvest every joule before the universe winds down.</p></div>
+    <div class="bubble box" aria-live="polite"><b>Capt. Nibbles, CEO</b><span id="bubble"></span></div>
+  </div>
+
+  <header class="hud" aria-label="Energy readout">
+    <div class="bank"><span class="lbl">Energy banked</span><b id="bank">0 J</b></div>
+    <div class="kard">
+      <div class="kline"><span class="lbl">Output</span><b id="watts">0 W</b><span class="lbl">Kardashev</span><b class="k" id="ktype">Type 0.00</b></div>
+      <div class="kbar" aria-hidden="true"><i id="kfill"></i>
+        <span class="tick" style="left:24.3%"><span class="kt">Earth</span></span>
+        <span class="tick" style="left:33.3%"><canvas class="ki px" width="12" height="12" data-k="planet"></canvas></span>
+        <span class="tick" style="left:66.6%"><canvas class="ki px" width="12" height="12" data-k="star"></canvas></span>
+        <span class="tick end" style="left:calc(100% - 2px)"><canvas class="ki px" width="12" height="12" data-k="galaxy"></canvas></span>
+      </div>
+      <div class="cmp"><span id="cmpNow"></span><span class="cmp-next" id="cmpNext"></span></div>
+    </div>
+    <div class="buy">
+      <div class="buy-top"><button type="button" class="mini ibtn" data-act="open" data-v="stats" aria-label="Stats"><canvas class="px" width="12" height="12" data-ui="chart" aria-hidden="true"></canvas><span>Stats</span></button><button type="button" class="mini ibtn" data-act="open" data-v="settings" aria-label="Settings"><canvas class="px" width="12" height="12" data-ui="gear" aria-hidden="true"></canvas><span>Settings</span></button><span class="lbl">Buy</span></div>
+      <div class="seg" role="group" aria-label="How many to buy" id="buySeg">
+        <button type="button" data-act="buyamt" data-v="1">×1</button><button type="button" data-act="buyamt" data-v="10">×10</button><button type="button" data-act="buyamt" data-v="100">×100</button><button type="button" data-act="buyamt" data-v="next">Next</button><button type="button" data-act="buyamt" data-v="max">Max</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="buyrow" aria-label="Buy amount">
+    <div class="seg" role="group" aria-label="How many to buy">
+      <button type="button" data-act="buyamt" data-v="1">×1</button><button type="button" data-act="buyamt" data-v="10">×10</button><button type="button" data-act="buyamt" data-v="100">×100</button><button type="button" data-act="buyamt" data-v="next">Next</button><button type="button" data-act="buyamt" data-v="max">Max</button>
+    </div>
+    <div class="row-ib"><button type="button" class="mini ibtn" data-act="open" data-v="stats" aria-label="Stats"><canvas class="px" width="12" height="12" data-ui="chart" aria-hidden="true"></canvas><span>Stats</span></button><button type="button" class="mini ibtn" data-act="open" data-v="settings" aria-label="Settings"><canvas class="px" width="12" height="12" data-ui="gear" aria-hidden="true"></canvas><span>Settings</span></button></div>
+  </div>
+
+  <main class="sources" id="sources" aria-label="Energy sources"></main>
+
+  <aside class="side" id="side" data-hold="side">
+    <section class="panel box">
+      <div class="ph"><h2>Upgrades</h2><span class="lbl" id="upCount"></span></div>
+      <p class="note">Operators run a source for you, even while you're away. Research multiplies what a source earns.</p>
+      <div class="upbox" id="upbox"></div>
+    </section>
+    <section class="panel box" id="crunch"></section>
+    <section class="panel box" id="net"></section>
+  </aside>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="modal" id="modal" hidden>
+  <div class="win box" id="win" role="dialog" aria-modal="true" aria-labelledby="winTitle" tabindex="-1">
+    <div class="winbar"><h2 id="winTitle">Stats</h2><button type="button" class="xbtn" data-act="close" aria-label="Close">X</button></div>
+    <div class="winbody" id="winBody"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ================= Helpers =================
+const $ = id => document.getElementById(id);
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const PREFIX = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q'];
+function si(x, unit) {
+  if (!isFinite(x)) return '∞ ' + unit;
+  if (x < 0) return '−' + si(-x, unit);
+  if (x < 1000) return (x < 10 && x % 1 ? x.toFixed(1) : String(Math.floor(x))) + ' ' + unit;
+  if (S && S.ui.numfmt === 'sci') { const e = Math.floor(Math.log10(x)); return (x / Math.pow(10, e)).toFixed(2) + 'e' + e + (unit ? ' ' + unit : ''); }
+  const i = Math.floor(Math.log10(x) / 3);
+  if (i < PREFIX.length) {
+    const v = x / Math.pow(10, i * 3);
+    return (v < 10 ? v.toFixed(2) : v < 100 ? v.toFixed(1) : v.toFixed(0)) + ' ' + PREFIX[i] + unit;
+  }
+  const e = Math.floor(Math.log10(x));
+  return (x / Math.pow(10, e)).toFixed(2) + 'e' + e + ' ' + unit;
+}
+const J = x => si(x, 'J'), W = x => si(x, 'W');
+function num(x) { return x < 1e6 ? Math.floor(x).toLocaleString('en-US') : si(x, '').trim(); }
+function clock(s) {
+  if (s < 1) return s.toFixed(1) + 's';
+  s = Math.ceil(s);
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60;
+  if (h) return `${h}:${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+  if (m) return `${m}:${String(r).padStart(2, '0')}`;
+  return r + 's';
+}
+function off(el, b) { if (!el) return; el.setAttribute('aria-disabled', b ? 'true' : 'false'); el.classList.toggle('off', !!b); }
+function setText(el, v) { if (el && el.textContent !== v) el.textContent = v; }
+const prefersCalm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const calm = () => S ? S.ui.motion === 'calm' : prefersCalm;
+
+// ================= Pixel art =================
+const PAL = { k: '#000000', n: '#1d2b53', p: '#7e2553', g: '#008751', b: '#ab5236', d: '#5f574f', l: '#c2c3c7', w: '#fff1e8', r: '#ff004d', o: '#ffa300', y: '#ffec27', G: '#00e436', B: '#29adff', v: '#83769c', P: '#ff77a8', f: '#ffccaa', s: '#141d3c' };
+function pen(c) {
+  const col = k => PAL[k] || k;
+  const g = {
+    px(x, y, k) { c.fillStyle = col(k); c.fillRect(Math.round(x), Math.round(y), 1, 1); },
+    rect(x, y, w, h, k) { c.fillStyle = col(k); c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); },
+    ell(cx, cy, rx, ry, k, th) { // filled, or a ring th pixels thick
+      c.fillStyle = col(k);
+      for (let y = Math.floor(cy - ry - 1); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx - 1); x <= Math.ceil(cx + rx); x++) {
+        const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry, d = Math.sqrt(dx * dx + dy * dy);
+        if (d <= 1 && (th === undefined || d > 1 - th / Math.min(rx, ry))) c.fillRect(x, y, 1, 1);
+      }
+    },
+    disc(cx, cy, r, k) { g.ell(cx, cy, r, r, k); },
+    ring(cx, cy, r, k, th = 1) { g.ell(cx, cy, r, r, k, th); },
+    line(x0, y0, x1, y1, k) {
+      c.fillStyle = col(k);
+      x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+      const dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1, dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+      let e = dx + dy;
+      for (let i = 0; i < 200; i++) {
+        c.fillRect(x0, y0, 1, 1);
+        if (x0 === x1 && y0 === y1) break;
+        const e2 = 2 * e;
+        if (e2 >= dy) { e += dy; x0 += sx; }
+        if (e2 <= dx) { e += dx; y0 += sy; }
+      }
+    }
+  };
+  return g;
+}
+const stars = (g, pts) => pts.forEach(([x, y]) => g.px(x, y, 'w'));
+// Each source sprite is 24x24, drawn in code. t = animation clock, on = running.
+const SPRITES = {
+  wheel(g, t, on) {
+    g.line(5, 23, 9, 14, 'b'); g.line(18, 23, 14, 14, 'b'); g.rect(3, 23, 18, 1, 'b');
+    g.ring(12, 11, 10, 'l', 1.6);
+    const a = on ? t * 5 : 0.3;
+    for (let k = 0; k < 4; k++) { const q = a + k * Math.PI / 4; g.line(12 + Math.cos(q) * 8.4, 11 + Math.sin(q) * 8.4, 12 - Math.cos(q) * 8.4, 11 - Math.sin(q) * 8.4, 'd'); }
+    g.rect(11, 10, 2, 2, 'w');
+    const step = on ? Math.floor(t * 10) % 2 : 0;
+    g.ell(11, 17.4, 3.6, 2.3, 'o'); g.disc(14.4, 16.4, 2, 'o');
+    g.px(15, 14, 'P'); g.px(15, 16, 'k'); g.px(16, 17, 'P'); g.px(7, 17, 'f'); g.px(12, 16, 'f');
+    g.px(step ? 9 : 10, 20, 'b'); g.px(step ? 13 : 12, 20, 'b');
+  },
+  solar(g, t, on) {
+    g.disc(19, 4, 3, 'y'); g.px(18, 3, 'w');
+    if (on && Math.floor(t * 4) % 2) [[19, 0], [23, 4], [15, 4], [22, 1], [16, 1], [22, 7]].forEach(([x, y]) => g.px(x, y, 'o'));
+    g.rect(11, 16, 2, 5, 'l'); g.rect(6, 21, 12, 2, 'd'); g.rect(6, 21, 12, 1, 'l');
+    for (let r = 0; r < 7; r++) {
+      const x0 = 2 + (6 - r);
+      g.rect(x0, 9 + r, 15, 1, r === 0 ? 'B' : 'n');
+      for (let cx = 0; cx < 15; cx += 4) g.px(x0 + cx, 9 + r, 'B');
+    }
+    g.rect(2 + 3, 12, 15, 1, 'B');
+    if (on) { const x = 8 + ((t * 14) % 15); g.px(x, 9, 'w'); g.px(x - 1, 10, 'w'); }
+  },
+  wind(g, t, on) {
+    g.rect(0, 21, 24, 3, 'g'); [[3, 21], [17, 21], [20, 22], [8, 22]].forEach(([x, y]) => g.px(x, y, 'G'));
+    const cx = on ? (t * 3) % 32 - 5 : 4;
+    g.ell(cx, 4, 3, 1.4, 'l'); g.ell(cx + 2.5, 3.2, 2.2, 1.6, 'w');
+    g.rect(11, 10, 2, 11, 'l'); g.rect(12, 10, 1, 11, 'w');
+    const a = on ? t * 4 : -Math.PI / 2;
+    for (let k = 0; k < 3; k++) {
+      const q = a + k * 2 * Math.PI / 3;
+      g.line(12, 9, 12 + Math.cos(q) * 8, 9 + Math.sin(q) * 8, 'w');
+      g.line(12 + Math.cos(q + 0.3) * 2, 9 + Math.sin(q + 0.3) * 2, 12 + Math.cos(q + 0.14) * 6, 9 + Math.sin(q + 0.14) * 6, 'l');
+    }
+    g.disc(12, 9, 1.4, 'o');
+  },
+  fission(g, t, on) {
+    for (let k = 0; k < 3; k++) {
+      const ph = on ? (t * 0.5 + k / 3) % 1 : 0.15 + k * 0.25;
+      if (!on && k > 0) break;
+      g.disc(9 + Math.sin(ph * 6 + k) * 1.2, 5 - ph * 6, 1.3 + ph * 2.2, ph < 0.5 ? 'w' : 'l');
+    }
+    for (let y = 7; y <= 21; y++) {
+      const w = 3.4 + (y > 12 ? ((y - 12) ** 2) / 16 : ((y - 12) ** 2) / 26), x0 = Math.round(9 - w), x1 = Math.round(9 + w);
+      g.rect(x0, y, x1 - x0, 1, 'l'); g.px(x1 - 1, y, 'd'); g.px(x0, y, 'w');
+    }
+    g.rect(5, 7, 9, 1, 'w');
+    g.disc(19, 22, 4.5, 'l'); g.rect(18, 19, 2, 2, on && Math.floor(t * 3) % 2 ? 'B' : 'n');
+    g.rect(0, 22, 24, 2, 'd');
+  },
+  fusion(g, t, on) {
+    g.rect(5, 19, 14, 4, 'd'); g.rect(6, 19, 12, 1, 'l');
+    g.ell(12, 12, 11, 6.5, 'v');
+    for (const x of [3, 7, 16, 20]) for (let y = 5; y < 19; y++) {
+      const dx = (x + 0.5 - 12) / 11, dy = (y + 0.5 - 12) / 6.5;
+      if (dx * dx + dy * dy <= 1) g.px(x, y, 'd');
+    }
+    g.ell(12, 12, 7.6, 4, on ? 'P' : 'p', 1.5);
+    g.ell(12, 12, 4, 1.8, 's');
+    if (on) for (let k = 0; k < 3; k++) { const q = t * 5 - k * 0.25; g.px(12 + Math.cos(q) * 7, 12 + Math.sin(q) * 3.5, k ? 'y' : 'w'); }
+  },
+  orbital(g, t, on) {
+    stars(g, [[1, 2], [21, 1], [4, 15], [22, 13], [17, 3]]);
+    g.disc(12, 37, 16, 'B'); g.ring(12, 37, 16, 'l', 1);
+    g.ell(7, 23, 3, 1.2, 'G'); g.ell(17, 22.6, 2.5, 1, 'G');
+    g.rect(1, 6, 8, 4, 'n'); g.rect(15, 6, 8, 4, 'n');
+    for (let x = 1; x < 9; x += 2) g.rect(x, 6, 1, 4, 'B');
+    for (let x = 16; x < 23; x += 2) g.rect(x, 6, 1, 4, 'B');
+    g.rect(9, 7, 6, 2, 'd'); g.rect(10, 5, 4, 6, 'l'); g.rect(11, 6, 2, 2, 'o');
+    if (on) for (let y = 12; y <= 20; y++) if ((y + Math.floor(t * 10)) % 3 === 0) g.px(12, y, 'y');
+  },
+  helium(g, t, on) {
+    stars(g, [[2, 3], [21, 2], [21, 21], [2, 20]]);
+    g.disc(12, 15, 8.5, 'l');
+    g.disc(9, 13, 2, 'd'); g.disc(15, 18, 2.4, 'd'); g.disc(15.5, 11, 1.2, 'd'); g.px(8, 12, 'w'); g.px(14, 17, 'w');
+    g.line(10, 7, 12, 2, 'o'); g.line(14, 7, 12, 2, 'o'); g.rect(9, 6, 7, 1, 'o'); g.line(12, 3, 12, 6, 'b');
+    g.px(12, 1, on && Math.floor(t * 3) % 2 ? 'r' : 'p');
+    if (on) for (let k = 0; k < 3; k++) { const ph = (t * 0.8 + k / 3) % 1; g.px(9 - ph * 6 + k * 3, 5 - ph * 4, 'f'); }
+  },
+  swarm(g, t, on) {
+    stars(g, [[1, 1], [22, 3], [2, 21], [21, 22]]);
+    for (let i = 0; i < 44; i += 2) { const q = i / 44 * Math.PI * 2; g.px(12 + Math.cos(q) * 10.5, 12 + Math.sin(q) * 4, 'v'); g.px(12 + Math.cos(q) * 4, 12 + Math.sin(q) * 10.5, 'v'); }
+    const pulse = on && Math.floor(t * 4) % 2;
+    g.disc(12, 12, pulse ? 5.2 : 4.6, 'r'); g.disc(12, 12, 4, 'o'); g.disc(12, 12, 2.6, 'y'); g.px(11, 11, 'w');
+    const a = on ? t * 1.6 : 0.4;
+    for (let k = 0; k < 5; k++) {
+      const q = a + k * 1.257;
+      g.px(12 + Math.cos(q) * 10.5, 12 + Math.sin(q) * 4, 'w');
+      g.px(12 + Math.cos(1 - q * 1.1) * 4, 12 + Math.sin(1 - q * 1.1) * 10.5, 'B');
+    }
+  },
+  hole(g, t, on) {
+    stars(g, [[2, 2], [20, 3], [3, 20], [21, 19], [11, 1]]);
+    const cols = ['y', 'o', 'r', 'o'];
+    const disk = front => {
+      for (let y = 7; y <= 19; y++) for (let x = 0; x < 24; x++) {
+        const dx = (x + 0.5 - 12) / 11.5, dy = (y + 0.5 - 13) / 3.6, d = Math.sqrt(dx * dx + dy * dy);
+        if (d > 1 || d < 0.6 || front !== (y + 0.5 >= 13)) continue;
+        const q = Math.atan2(dy, dx) + (on ? t * 3 : 0);
+        g.px(x, y, cols[((Math.floor(q / (Math.PI / 4)) % 4) + 4) % 4]);
+      }
+    };
+    g.ring(12, 12, 7.5, 'p', 1);
+    disk(false);
+    g.ring(12, 12, 5.8, 'o', 1.2);
+    g.disc(12, 12, 4.7, 'k');
+    disk(true);
+  },
+  vacuum(g, t, on) {
+    const cols = ['v', 'P', 'B', 'w'], rot = on ? t * 1.8 : 0;
+    for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 46; i++) { const s = i * 0.2, q = s + rot + arm * Math.PI; g.px(12 + Math.cos(q) * s * 1.05, 12 + Math.sin(q) * s * 1.05, cols[Math.floor(i / 4) % 4]); }
+    g.disc(12, 12, on && Math.floor(t * 5) % 2 ? 2.2 : 1.6, 'w');
+    [[3, 4, 0], [20, 6, 1], [5, 19, 2], [19, 20, 3]].forEach(([x, y, ph]) => { if (!on || (Math.floor(t * 3) + ph) % 4) g.px(x, y, 'y'); });
+  }
+};
+const UIICON = {
+  gear(g) { [[5, 0], [5, 10], [0, 5], [10, 5], [1, 1], [9, 1], [1, 9], [9, 9]].forEach(([x, y]) => g.rect(x, y, 2, 2, 'l')); g.disc(6, 6, 4, 'l'); g.disc(6, 6, 1.8, 's'); },
+  chart(g) { g.rect(0, 11, 12, 1, 'l'); g.rect(1, 7, 2, 4, 'B'); g.rect(4, 4, 2, 7, 'G'); g.rect(7, 6, 2, 5, 'y'); g.rect(10, 1, 2, 10, 'P'); }
+};
+const KICON = {
+  planet(g) { g.disc(6, 6, 5, 'B'); g.ell(4.5, 5, 2, 1.3, 'G'); g.ell(8, 8.5, 1.5, 1, 'G'); g.px(3, 3, 'w'); },
+  star(g) { g.disc(6, 6, 3.5, 'y'); [[6, 0], [6, 11], [0, 6], [11, 6], [2, 2], [9, 2], [2, 9], [9, 9]].forEach(([x, y]) => g.px(x, y, 'o')); g.px(5, 5, 'w'); },
+  galaxy(g) { for (let arm = 0; arm < 2; arm++) for (let i = 0; i < 22; i++) { const s = i * 0.25, q = s + arm * Math.PI; g.px(6 + Math.cos(q) * s * 0.95, 6 + Math.sin(q) * s * 0.95, i < 7 ? 'w' : i < 14 ? 'P' : 'v'); } }
+};
+function drawMascot(g, blink, talk, t) {
+  g.rect(5, 19, 14, 5, 'w'); g.rect(4, 18, 16, 2, 'l'); g.rect(3, 20, 2, 4, 'w'); g.rect(19, 20, 2, 4, 'w');
+  g.rect(11, 20, 2, 2, 'o'); g.px(7, 21, 'B'); g.px(16, 21, 'r');
+  g.disc(12, 10, 9, 'n');
+  g.disc(7.5, 5.5, 1.9, 'o'); g.disc(16.5, 5.5, 1.9, 'o'); g.px(7, 5, 'P'); g.px(16, 5, 'P');
+  g.disc(12, 10.6, 5.6, 'o');
+  g.ell(12, 12.8, 3.3, 2.4, 'f');
+  if (blink) { g.rect(9, 10, 2, 1, 'k'); g.rect(13, 10, 2, 1, 'k'); }
+  else { g.rect(9, 9, 2, 2, 'k'); g.rect(13, 9, 2, 2, 'k'); g.px(9, 9, 'w'); g.px(13, 9, 'w'); }
+  g.px(8, 12, 'P'); g.px(15, 12, 'P');
+  g.px(11, 12, 'P'); g.px(12, 12, 'P');
+  if (talk) { g.rect(10, 13, 4, 2, 'p'); g.px(11, 13, 'w'); g.px(12, 13, 'w'); }
+  else { g.px(10, 13, 'k'); g.px(13, 13, 'k'); g.rect(11, 13, 2, 2, 'w'); }
+  g.ring(12, 10, 9, 'B', 1);
+  g.px(6, 5, 'w'); g.px(7, 4, 'w'); g.px(5, 7, 'w');
+  g.line(18, 2, 20, 0, 'l'); g.px(20, 0, Math.floor(t * 2) % 2 ? 'r' : 'P');
+}
+
+// ================= Game data =================
+// c0: first unit's cost (J) · r: cost growth per unit · T: seconds per cycle · R: joules per unit per cycle
+const SRC = [
+  { id: 'wheel',   name: 'Hamster Wheel',        c0: 4,      r: 1.07, T: 1,   R: 1.5,   op: 'Coach Whiskers',     opCost: 1000,   quip: 'Motivational speaker for rodents.',
+    res: ['Premium sunflower seeds', 'Ergonomic wheel', 'Hamster union contract', 'Second hamster'] },
+  { id: 'solar',   name: 'Rooftop Solar',        c0: 65,     r: 1.15, T: 3,   R: 60,    op: 'Ray Diant',          opCost: 15000,  quip: 'Has never once stood in the shade.',
+    res: ['Anti-glare coating', 'Perovskite cells', 'Sun-tracking mounts', 'Night-side mirrors'] },
+  { id: 'wind',    name: 'Wind Farm',            c0: 800,    r: 1.14, T: 6,   R: 580,   op: 'Gale Force',         opCost: 100000, quip: 'Talks fast. Spins faster.',
+    res: ['Longer blades', 'Offshore leases', 'Storm-chasing turbines', 'Jet stream kites'] },
+  { id: 'fission', name: 'Fission Reactor',      c0: 9500,   r: 1.13, T: 12,  R: 6800,  op: 'Ura Nium',           opCost: 500000, quip: "Glows a little. Don't ask.",
+    res: ['Enriched fuel rods', 'Breeder reactor', 'Thorium cycle', 'Pebble-bed cores'] },
+  { id: 'fusion',  name: 'Fusion Tokamak',       c0: 115000, r: 1.12, T: 24,  R: 83000, op: 'Plasma Pat',         opCost: 1.5e6,  quip: 'Keeps it at 150 million degrees, minimum.',
+    res: ['Stronger magnets', 'Plasma whisperer', 'Ignition, for real this time', 'Aneutronic fuel'] },
+  { id: 'orbital', name: 'Orbital Solar Array',  c0: 1.4e6,  r: 1.11, T: 48,  R: 8.7e5, op: 'Sol Orbis',          opCost: 1.2e7,  quip: 'Works the night shift by never having one.',
+    res: ['Microwave beaming', 'Self-assembling panels', 'Mercury orbit', 'Lagrange point farms'] },
+  { id: 'helium',  name: 'Helium-3 Moon Mine',   c0: 1.7e7,  r: 1.10, T: 96,  R: 9e6,   op: 'Luna Tick',          opCost: 1e8,    quip: 'Has not seen an Earthrise in years. Prefers it.',
+    res: ['Regolith sifters', 'Lunar railgun', 'Far side expansion', 'Lunar mass driver'] },
+  { id: 'swarm',   name: 'Dyson Swarm',          c0: 2.1e8,  r: 1.09, T: 192, R: 9.3e7, op: 'The Swarm Queen',    opCost: 1e9,    quip: 'Speaks for ten trillion mirrors.',
+    res: ['Statite mirrors', 'Swarm firmware 2.0', 'Star lifting', 'Matrioshka layers'] },
+  { id: 'hole',    name: 'Black Hole Harvester', c0: 2.6e9,  r: 1.08, T: 384, R: 1e9,   op: 'Event Horizon Ella', opCost: 1.2e10, quip: 'Stands very, very close to the edge.',
+    res: ['Penrose process', 'Spin harvesting', 'Hawking radiation tap', 'Accretion disk sails'] },
+  { id: 'vacuum',  name: 'Zero-Point Tap',       c0: 3.2e10, r: 1.07, T: 768, R: 9.8e9, op: 'Zed Zero',           opCost: 1.5e11, quip: 'Borrows energy from nothing and never pays it back.',
+    res: ['Casimir plates', 'False vacuum insurance', 'Borrowing from tomorrow', 'Unbounded vacuum'] }
+];
+const SI = Object.fromEntries(SRC.map(s => [s.id, s]));
+const SPEED_AT = [10, 25, 50, 100, 150, 200, 300, 400]; // each: this source runs twice as fast
+const PROFIT_AT = [500, 600, 700, 800, 900, 1000];       // each: this source earns twice as much
+const ALL_AT = [25, 50, 100, 200, 300, 400];            // every source at N: all profit x2
+const RES_COST = [500, 5e5, 5e8, 5e11];                 // research cost, in multiples of a source's first unit
+const GLOBAL_RES = [['Smart grid', 1e11], ['Room-temperature superconductors', 1e15], ['Antimatter batteries', 1e19], ['Wormhole transmission lines', 1e23], ['Cosmic web routing', 1e27], ['Entropy accounting', 1e31], ['Universal heat pump', 1e35], ["Maxwell's demon, salaried", 1e39]];
+
+const UPS = [];
+SRC.forEach(s => UPS.push({ id: 'op-' + s.id, kind: 'op', src: s.id, name: s.op, cost: s.opCost, desc: `Runs the ${s.name} for you. ${s.quip}` }));
+SRC.forEach(s => s.res.forEach((name, i) => UPS.push({ id: `r-${s.id}-${i}`, kind: 'res', src: s.id, name, cost: s.c0 * RES_COST[i], desc: `${s.name} profit ×3.` })));
+GLOBAL_RES.forEach(([name, cost], i) => UPS.push({ id: 'g-' + i, kind: 'glob', name, cost, desc: 'Profit ×3 for every source.' }));
+UPS.sort((a, b) => a.cost - b.cost);
+const UI = Object.fromEntries(UPS.map(u => [u.id, u]));
+const KIND = { op: 'Operator', res: 'Research', glob: 'Breakthrough' };
+
+const DMU = [
+  { id: 'seed', name: 'Seed operators', cost: 10, desc: 'Start each universe with Coach Whiskers and Ray Diant hired.' },
+  { id: 'prim', name: 'Primordial reserve', cost: 25, desc: 'Start each universe with 1 MJ banked.' },
+  { id: 'infl1', name: 'Inflationary epoch', cost: 100, desc: 'All profit ×3.', mult: 3 },
+  { id: 'strings', name: 'Cosmic strings', cost: 400, desc: 'Every source runs twice as fast.' },
+  { id: 'energy', name: 'Dark energy', cost: 1500, desc: 'Each unspent dark matter gives +3% instead of +2%.' },
+  { id: 'infl2', name: 'Second inflation', cost: 5000, desc: 'All profit ×3.', mult: 3 },
+  { id: 'nucleo', name: 'Nucleosynthesis', cost: 25000, desc: 'All profit ×5.', mult: 5 },
+  { id: 'multi', name: 'Multiverse franchise', cost: 250000, desc: 'All profit ×9.', mult: 9 }
+];
+const DI = Object.fromEntries(DMU.map(d => [d.id, d]));
+
+// Real-world power figures for scale
+const CMP = [[0.5, 'a hamster on a wheel'], [10, 'an LED bulb'], [100, 'a resting human'], [1e3, 'a microwave oven'], [1e5, 'a car engine'], [2e6, 'a wind turbine'], [1e9, 'a nuclear reactor'], [2.25e10, 'the Three Gorges Dam'], [1.9e13, 'all of human civilization'], [1.74e17, 'all sunlight reaching Earth'], [3.8e26, 'the Sun'], [1e37, 'the Milky Way']];
+
+// Captain Nibbles' lines
+const QUIPS = [
+  "Every joule you bank is one the heat death can't have.",
+  'I run on sunflower seeds and spite.',
+  'The Sun makes 380 yottawatts. Show-off.',
+  "Energy can't be created or destroyed. Only invoiced.",
+  'A Dyson swarm is just a giant hamster wheel.',
+  'We have about a googol years left. No pressure.',
+  'My cheeks hold four seeds or one small reactor.',
+  "Hire operators. I can't run every wheel myself.",
+  "Entropy wins in the end. Let's make the end profitable.",
+  'Fun fact: a real hamster makes about half a watt.'
+];
+
+// ================= Sound (off until the player turns it on) =================
+let AC = null;
+function tone(seq, type = 'square', vol = 0.04) {
+  if (!S || !S.ui.sound || !S.ui.vol) return;
+  vol *= S.ui.vol / 60;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    let t = AC.currentTime;
+    for (const [f, d] of seq) {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + 0.02);
+      t += d * 0.85;
+    }
+  } catch (e) {}
+}
+const SFX = {
+  run: () => tone([[880, 0.035]], 'square', 0.025),
+  done: () => tone([[1320, 0.04]], 'triangle', 0.03),
+  buy: () => tone([[523, 0.045], [784, 0.06]]),
+  mile: () => tone([[523, 0.07], [659, 0.07], [784, 0.07], [1047, 0.12]]),
+  op: () => tone([[392, 0.06], [523, 0.06], [659, 0.1]]),
+  res: () => tone([[659, 0.05], [988, 0.08]], 'triangle', 0.05),
+  crunch: () => tone([[880, 0.12], [660, 0.12], [440, 0.12], [220, 0.2], [110, 0.3], [1760, 0.5]], 'sawtooth', 0.035)
+};
+
+// ================= State =================
+const SAVE_KEY = 'heat-death-holdings-v1';
+let S = null;
+const M = { cyc: {}, rev: {}, auto: 0, global: 1, watts: 0 };
+let RES = new Set(), DMS = new Set();
+const hasR = id => RES.has(id), hasD = id => DMS.has(id);
+function syncSets() { RES = new Set(S.res); DMS = new Set(S.dmu); }
+let manualRate = 0, manualAcc = 0;
+
+function freshSources() {
+  const o = {}; SRC.forEach(s => o[s.id] = { n: 0, p: 0, run: false, op: false });
+  o.wheel.n = 1;
+  return o;
+}
+function fresh() {
+  return { v: 1, J: 0, life: 0, runLife: 0, universe: 1, src: freshSources(), res: [], dm: 0, dmEarned: 0, dmu: [],
+    t: 0, runT: 0, clicks: 0, bestW: 0, runBestW: 0, saved: Date.now(), started: Date.now(), trend: [], trendT: 0, hist: [],
+    ui: { buy: 1, sound: false, vol: 60, motion: prefersCalm ? 'calm' : 'full', stars: true, chatter: 'all', toasts: 'all', numfmt: 'si', confirm: true, cloud: true, cmp: -1 } };
+}
+function hydrate(d) {
+  if (!d || typeof d !== 'object' || d.v !== 1) return null;
+  const s = fresh();
+  for (const k of ['J', 'life', 'runLife', 'universe', 'dm', 'dmEarned', 't', 'runT', 'clicks', 'bestW', 'runBestW', 'saved', 'started', 'trendT']) if (typeof d[k] === 'number' && isFinite(d[k]) && d[k] >= 0) s[k] = d[k];
+  if (Array.isArray(d.res)) s.res = d.res.filter(id => UI[id] && UI[id].kind !== 'op');
+  if (Array.isArray(d.dmu)) s.dmu = d.dmu.filter(id => DI[id]);
+  if (d.src && typeof d.src === 'object') SRC.forEach(x => {
+    const v = d.src[x.id]; if (!v) return;
+    s.src[x.id] = { n: Math.max(0, Math.floor(+v.n || 0)), p: clamp(+v.p || 0, 0, 1), run: !!v.run, op: !!v.op };
+  });
+  if (d.ui) {
+    if (['1', '10', '100', 'next', 'max'].includes(String(d.ui.buy))) s.ui.buy = d.ui.buy;
+    s.ui.sound = !!d.ui.sound;
+    if (typeof d.ui.cmp === 'number') s.ui.cmp = d.ui.cmp;
+    if (typeof d.ui.vol === 'number') s.ui.vol = clamp(Math.round(d.ui.vol), 0, 100);
+    const pickOf = (k, list) => { if (list.includes(d.ui[k])) s.ui[k] = d.ui[k]; };
+    pickOf('motion', ['full', 'calm']); pickOf('chatter', ['all', 'quiet', 'off']); pickOf('toasts', ['all', 'key', 'off']); pickOf('numfmt', ['si', 'sci']);
+    if (typeof d.ui.stars === 'boolean') s.ui.stars = d.ui.stars;
+    if (typeof d.ui.confirm === 'boolean') s.ui.confirm = d.ui.confirm;
+    if (typeof d.ui.cloud === 'boolean') s.ui.cloud = d.ui.cloud;
+  }
+  if (Array.isArray(d.trend)) s.trend = d.trend.filter(x => typeof x === 'number' && isFinite(x) && x >= 0).slice(-180);
+  if (Array.isArray(d.hist)) s.hist = d.hist.filter(h => h && typeof h.u === 'number').slice(-30);
+  return s;
+}
+function loadLocal() { try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return hydrate(JSON.parse(raw)); } catch (e) {} return null; }
+function save() { if (!S) return; S.saved = Date.now(); try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+
+// ================= Economy =================
+function gain(x) { if (x > 0 && isFinite(x)) { S.J += x; S.life += x; S.runLife += x; } }
+const minOwned = () => Math.min(...SRC.map(s => S.src[s.id].n));
+const dmRate = () => hasD('energy') ? 0.03 : 0.02;
+function recalc() {
+  let g = 1;
+  GLOBAL_RES.forEach((_, i) => { if (hasR('g-' + i)) g *= 3; });
+  const lo = minOwned(); ALL_AT.forEach(a => { if (lo >= a) g *= 2; });
+  g *= 1 + dmRate() * S.dm;
+  DMU.forEach(d => { if (d.mult && hasD(d.id)) g *= d.mult; });
+  M.global = g;
+  let auto = 0;
+  for (const s of SRC) {
+    const st = S.src[s.id];
+    let sp = hasD('strings') ? 2 : 1, pr = 1;
+    SPEED_AT.forEach(a => { if (st.n >= a) sp *= 2; });
+    PROFIT_AT.forEach(a => { if (st.n >= a) pr *= 2; });
+    s.res.forEach((_, i) => { if (hasR(`r-${s.id}-${i}`)) pr *= 3; });
+    M.cyc[s.id] = s.T / sp;
+    M.rev[s.id] = s.R * st.n * pr * g;
+    if (st.op && st.n > 0) auto += M.rev[s.id] / M.cyc[s.id];
+  }
+  M.auto = auto;
+  M.watts = auto + manualRate;
+}
+function nextMilestone(n) {
+  const sp = SPEED_AT.find(a => a > n); if (sp) return { at: sp, kind: 'speed ×2' };
+  const pr = PROFIT_AT.find(a => a > n); if (pr) return { at: pr, kind: 'profit ×2' };
+  return null;
+}
+function priceN(s, k) { const st = S.src[s.id]; return s.c0 * Math.pow(s.r, st.n) * (Math.pow(s.r, k) - 1) / (s.r - 1); }
+function maxN(s) {
+  const st = S.src[s.id], p0 = s.c0 * Math.pow(s.r, st.n);
+  let k = Math.floor(Math.log(S.J * (s.r - 1) / p0 + 1) / Math.log(s.r));
+  while (k > 0 && priceN(s, k) > S.J) k--;
+  return Math.max(0, k);
+}
+function buyCount(s) {
+  const b = S.ui.buy, n = S.src[s.id].n;
+  if (b === 'max') return maxN(s);
+  if (b === 'next') { const m = nextMilestone(n); return m ? m.at - n : 100; }
+  return +b;
+}
+function buySource(id) {
+  const s = SI[id]; if (!s) return;
+  const k = buyCount(s); if (k < 1) return;
+  const c = priceN(s, k); if (c > S.J) return;
+  const st = S.src[id], before = st.n, loBefore = minOwned();
+  S.J -= c; st.n += k;
+  let mile = false;
+  [...SPEED_AT.map(a => [a, 'runs twice as fast']), ...PROFIT_AT.map(a => [a, 'earns twice as much'])].forEach(([a, what]) => {
+    if (before < a && st.n >= a) { toast(`${s.name} reached ${a}: it ${what}.`, true); mile = true; }
+  });
+  const lo = minOwned();
+  ALL_AT.forEach(a => { if (loBefore < a && lo >= a) { toast(`Every source reached ${a}: all profit ×2.`, true); mile = true; } });
+  if (mile) { SFX.mile(); confetti(id); say(pick(['Faster! FASTER!', 'Look at it go!', "That's what I call acceleration.", 'Squeak of approval.']), true); }
+  else SFX.buy();
+  if (before === 0) say(`A ${s.name.toLowerCase()}! Can I name it?`, true);
+}
+function buyUpgrade(id) {
+  const u = UI[id]; if (!u || S.J < u.cost) return;
+  if (u.kind === 'op') {
+    if (S.src[u.src].op) return;
+    S.src[u.src].op = true; toast(`${u.name} now runs the ${SI[u.src].name}.`); SFX.op();
+    say(`Welcome to the team, ${u.name}!`, true);
+  } else {
+    if (hasR(id)) return;
+    S.res.push(id); RES.add(id); toast(`${u.name}: ${u.desc}`); SFX.res();
+    say(pick(['Science!', 'Peer review can wait. Ship it!', 'I understood none of that. Love it.']));
+  }
+  S.J -= u.cost;
+}
+const upDone = u => u.kind === 'op' ? S.src[u.src].op : hasR(u.id);
+function startRun(id) {
+  const st = S.src[id];
+  if (st.n < 1 || st.run || st.op) return false;
+  st.run = true; st.p = 0; S.clicks++;
+  SFX.run();
+  return true;
+}
+
+// ---- Dark matter / Big Crunch ----
+const dmFor = life => Math.floor(100 * Math.pow(life / 1e12, 0.25));
+const lifeFor = n => Math.pow(n / 100, 4) * 1e12;
+const dmClaim = () => Math.max(0, dmFor(S.life) - S.dmEarned);
+function crunch() {
+  const k = dmClaim(); if (k < 1) return;
+  S.hist.push({ u: S.universe, dur: S.runT, dm: k, w: S.runBestW }); if (S.hist.length > 30) S.hist.shift();
+  const keep = { life: S.life, dm: S.dm + k, dmEarned: S.dmEarned + k, dmu: S.dmu, t: S.t, clicks: S.clicks, bestW: S.bestW, started: S.started, ui: S.ui, universe: S.universe + 1, trend: S.trend, trendT: S.trendT, hist: S.hist };
+  S = Object.assign(fresh(), keep);
+  syncSets();
+  if (hasD('prim')) S.J = 1e6;
+  if (hasD('seed')) { S.src.wheel.op = true; S.src.solar.op = true; }
+  manualRate = 0; S.ui.cmp = -1;
+  sig = {};
+  toast(`The universe collapsed and began again. +${num(k)} dark matter.`, true);
+  say(`Universe #${S.universe}. Same hamster, bigger dreams.`, true);
+}
+function buyDM(id) {
+  const d = DI[id]; if (!d || hasD(id) || S.dm < d.cost) return;
+  S.dm -= d.cost; S.dmu.push(id); DMS.add(id);
+  if (id === 'seed') { S.src.wheel.op = true; S.src.solar.op = true; }
+  toast(`${d.name}: ${d.desc}`, true); SFX.res();
+  say('Dark matter well spent. Probably.', true);
+}
+
+// ================= Main loop =================
+function tick(dt) {
+  S.t += dt; S.runT += dt;
+  recalc();
+  manualAcc = 0;
+  for (const s of SRC) {
+    const st = S.src[s.id];
+    if (st.n < 1) continue;
+    if (st.op && !st.run) { st.run = true; st.p = 0; }
+    if (!st.run) continue;
+    st.p += dt / M.cyc[s.id];
+    if (st.p >= 1) {
+      if (st.op) { const k = Math.floor(st.p); gain(k * M.rev[s.id]); st.p -= k; }
+      else { gain(M.rev[s.id]); manualAcc += M.rev[s.id]; st.p = 0; st.run = false; popOn(s.id, '+' + J(M.rev[s.id])); SFX.done(); }
+    }
+  }
+  const a = 1 - Math.exp(-dt / 4);
+  manualRate += (manualAcc / Math.max(dt, 1e-3) - manualRate) * a;
+  if (manualRate < 1e-6) manualRate = 0;
+  M.watts = M.auto + manualRate;
+  if (M.watts > S.bestW) S.bestW = M.watts;
+  if (M.watts > S.runBestW) S.runBestW = M.watts;
+  S.trendT += dt;
+  while (S.trendT >= 10) { S.trendT -= 10; S.trend.push(M.watts); if (S.trend.length > 180) S.trend.shift(); }
+}
+
+// ================= Mascot =================
+const mascot = pen($('mascot').getContext('2d'));
+let sayUntil = 0, lastSay = 0, talkUntil = 0;
+function say(text, force, idle) {
+  if (S && (S.ui.chatter === 'off' || (idle && S.ui.chatter === 'quiet'))) return;
+  const now = performance.now();
+  if (!force && now < sayUntil) return;
+  setText($('bubble'), text);
+  sayUntil = now + 5000; talkUntil = now + 1300; lastSay = now;
+}
+function drawMascotFrame(now) {
+  const c = $('mascot').getContext('2d');
+  c.clearRect(0, 0, 24, 24);
+  const blink = (now % 3600) < 140;
+  const talk = now < talkUntil && Math.floor(now / 130) % 2 === 0;
+  drawMascot(mascot, blink, talk, now / 1000);
+  if (now - lastSay > 40000) say(pick(QUIPS), false, true);
+}
+
+// ================= Starfield =================
+const sky = $('sky'), skyc = sky.getContext('2d');
+let skyStars = [], shooter = null;
+function resizeSky() {
+  sky.width = Math.ceil(innerWidth / 3); sky.height = Math.ceil(innerHeight / 3);
+  skyStars = Array.from({ length: Math.round(sky.width * sky.height / 110) }, () => ({
+    x: Math.random() * sky.width, y: Math.random() * sky.height, z: Math.random() < 0.2 ? 2 : 1,
+    c: pick(['w', 'w', 'w', 'l', 'B', 'P', 'y', 'v']), ph: Math.random() * 6.28, sp: 0.6 + Math.random() * 1.4
+  }));
+  drawSky(performance.now());
+}
+function drawSky(now) {
+  const t = calm() ? 0 : now / 1000, w = sky.width, h = sky.height;
+  skyc.clearRect(0, 0, w, h);
+  for (const s of skyStars) {
+    const tw = Math.sin(t * s.sp + s.ph);
+    if (tw < -0.75) continue;
+    const x = ((s.x - t * 0.6 * s.z) % w + w) % w;
+    skyc.fillStyle = PAL[s.c]; skyc.fillRect(x | 0, s.y | 0, 1, 1);
+    if (s.z === 2 && tw > 0.85) { skyc.fillRect((x | 0) - 1, s.y | 0, 3, 1); skyc.fillRect(x | 0, (s.y | 0) - 1, 1, 3); }
+  }
+  if (calm()) return;
+  if (!shooter && Math.random() < 0.004) shooter = { x: Math.random() * w, y: Math.random() * h * 0.5, t0: t };
+  if (shooter) {
+    const k = (t - shooter.t0) * 60;
+    if (k > 40) shooter = null;
+    else for (let i = 0; i < 6; i++) { skyc.fillStyle = i ? PAL.l : PAL.w; skyc.fillRect((shooter.x + k - i) | 0, (shooter.y + k * 0.5 - i * 0.5) | 0, 1, 1); }
+  }
+}
+addEventListener('resize', resizeSky);
+
+// ================= Effects =================
+function popOn(id, text) {
+  const card = document.querySelector(`[data-src="${id}"]`); if (!card) return;
+  const p = document.createElement('span');
+  p.className = 'pop'; p.textContent = text;
+  p.style.left = '106px'; p.style.top = '30px';
+  card.appendChild(p);
+  setTimeout(() => p.remove(), 900);
+}
+function confetti(id) {
+  if (calm()) return;
+  const card = document.querySelector(`[data-src="${id}"]`); if (!card) return;
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('i'); b.className = 'bit';
+    const q = Math.random() * 6.283, d = 30 + Math.random() * 46;
+    b.style.setProperty('--dx', Math.round(Math.cos(q) * d / 3) * 3 + 'px');
+    b.style.setProperty('--dy', Math.round((Math.sin(q) * d - 18) / 3) * 3 + 'px');
+    b.style.background = PAL[pick(['y', 'o', 'P', 'B', 'G', 'w'])];
+    b.style.left = '50px'; b.style.top = '55px';
+    card.appendChild(b);
+    setTimeout(() => b.remove(), 820);
+  }
+}
+function crunchFx(done) {
+  SFX.crunch();
+  if (calm()) { done(); return; }
+  const cv = document.createElement('canvas'); cv.className = 'fx'; document.body.appendChild(cv);
+  const sc = 4, w = cv.width = Math.ceil(innerWidth / sc), h = cv.height = Math.ceil(innerHeight / sc), c = cv.getContext('2d');
+  const cx = w / 2, cy = h / 2, R = Math.hypot(w, h) / 2;
+  const P = Array.from({ length: 320 }, () => ({ a: Math.random() * 6.283, r: Math.random() * R, k: pick(['w', 'y', 'o', 'P', 'B', 'v', 'G']) }));
+  const t0 = performance.now(); let did = false, gone = false;
+  const finish = () => { if (!did) { did = true; done(); } };
+  const end = () => { if (!gone) { gone = true; finish(); cv.remove(); } };
+  setTimeout(end, 3200);
+  const frame = () => {
+    if (gone) return;
+    const t = (performance.now() - t0) / 1000;
+    c.globalAlpha = 1; c.fillStyle = '#0b1026'; c.fillRect(0, 0, w, h);
+    if (t < 1.1) {
+      const f = Math.pow(t / 1.1, 2.2);
+      for (const p of P) { const r = p.r * (1 - f), q = p.a + f * 5; c.fillStyle = PAL[p.k]; c.fillRect((cx + Math.cos(q) * r) | 0, (cy + Math.sin(q) * r) | 0, 1, 1); }
+      cv.style.opacity = String(Math.min(1, t / 0.25));
+    } else if (t < 1.4) {
+      finish();
+      c.fillStyle = PAL.w; c.globalAlpha = 1 - (t - 1.1) / 0.3; c.fillRect(0, 0, w, h);
+    } else if (t < 2.7) {
+      const f = (t - 1.4) / 1.3;
+      for (const p of P) { const r = f * p.r * 1.7; c.fillStyle = PAL[p.k]; c.fillRect((cx + Math.cos(p.a) * r) | 0, (cy + Math.sin(p.a) * r) | 0, 1, 1); }
+      cv.style.opacity = String(1 - Math.max(0, (f - 0.55) / 0.45));
+    } else { end(); return; }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+// ================= Rendering =================
+const HOLD = { side: { inside: false, left: 0 } };
+document.querySelectorAll('[data-hold]').forEach(el => {
+  const h = HOLD[el.dataset.hold];
+  el.addEventListener('pointerenter', () => { h.inside = true; });
+  el.addEventListener('pointerleave', () => { h.inside = false; h.left = performance.now(); });
+  el.addEventListener('pointerdown', () => { h.left = performance.now(); });
+});
+const held = k => HOLD[k].inside || performance.now() - HOLD[k].left < 1200;
+let sig = {};
+function rebuildIf(key, s, holdKey, fn) {
+  if (sig[key] === s) return;
+  if (sig[key] !== undefined && holdKey && held(holdKey)) return;
+  sig[key] = s; fn();
+}
+function toast(msg, hot) {
+  const box = $('toasts'); if (!box) return;
+  if (S && (S.ui.toasts === 'off' || (S.ui.toasts === 'key' && !hot))) return;
+  const d = document.createElement('div');
+  d.className = 'toast' + (hot ? ' hot' : ''); d.textContent = msg;
+  box.appendChild(d);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => d.remove(), 5500);
+}
+
+const PENS = {};
+function buildSources() {
+  $('sources').innerHTML = SRC.map(s => `
+    <article class="src box" data-src="${s.id}">
+      <button type="button" class="run" data-act="run" data-v="${s.id}" aria-label="Run ${esc(s.name)}">
+        <canvas class="px" width="24" height="24" aria-hidden="true"></canvas>
+        <span class="n" data-f="n">0</span>
+        <span class="autotag" data-f="auto" hidden>AUTO</span>
+      </button>
+      <div class="srow"><h3>${esc(s.name)}</h3><span class="lbl" data-f="who"></span></div>
+      <div class="pbar" data-f="bar"><i data-f="fill"></i><span><b data-f="rev"></b><b data-f="time"></b></span></div>
+      <div class="brow">
+        <button type="button" class="bbtn" data-act="buy" data-v="${s.id}"><span><span class="bw" data-f="bw">Buy </span><span data-f="bl">×1</span></span><span data-f="bc"></span></button>
+        <div class="ms"><span class="lbl"><span data-f="msa"></span> → <span class="msk" data-f="msk"></span>×2</span><div class="mbar"><i data-f="mbar"></i></div></div>
+      </div>
+    </article>`).join('');
+  SRC.forEach(s => {
+    const cv = document.querySelector(`[data-src="${s.id}"] canvas`);
+    PENS[s.id] = { c: cv.getContext('2d'), g: pen(cv.getContext('2d')), key: '' };
+  });
+  document.querySelectorAll('canvas[data-k]').forEach(cv => KICON[cv.dataset.k](pen(cv.getContext('2d'))));
+}
+function drawSprite(s, now) {
+  const st = S.src[s.id], P = PENS[s.id], on = st.run || st.op, locked = st.n < 1;
+  const t = calm() ? 0 : now / 1000 * clamp(2 / M.cyc[s.id], 1, 4);
+  const key = locked ? 'L' : on && !calm() ? 'A' + Math.floor(t * 12) : 'I';
+  if (key === P.key) return;
+  P.key = key;
+  P.c.clearRect(0, 0, 24, 24);
+  SPRITES[s.id](P.g, t, on && !locked);
+  if (locked) { P.c.globalCompositeOperation = 'source-atop'; P.c.fillStyle = '#2a3560'; P.c.fillRect(0, 0, 24, 24); P.c.globalCompositeOperation = 'source-over'; }
+}
+function renderSources(now) {
+  for (const s of SRC) {
+    const card = document.querySelector(`[data-src="${s.id}"]`); if (!card) continue;
+    const q = f => card.querySelector(`[data-f="${f}"]`);
+    const st = S.src[s.id], owned = st.n > 0, cyc = M.cyc[s.id], rev = M.rev[s.id] || 0;
+    drawSprite(s, now);
+    card.classList.toggle('locked', !owned);
+    const runBtn = card.querySelector('.run');
+    setText(q('n'), num(st.n));
+    q('auto').hidden = !st.op;
+    runBtn.classList.toggle('auto', st.op);
+    runBtn.classList.toggle('ready', owned && !st.op && !st.run);
+    off(runBtn, !owned || st.run || st.op);
+    const who = q('who');
+    setText(who, st.op ? s.op : owned ? (st.run ? 'Running' : 'Click to run') : 'Not built');
+    who.classList.toggle('go', owned && !st.op && !st.run);
+    const fast = st.op && cyc < 0.25;
+    q('bar').classList.toggle('fast', fast);
+    q('fill').style.clipPath = fast ? '' : `inset(0 ${(100 - (st.run ? clamp(st.p, 0, 1) : 0) * 100).toFixed(2)}% 0 0)`;
+    setText(q('rev'), owned ? (fast ? W(rev / cyc) : J(rev)) : '—');
+    setText(q('time'), owned ? (fast ? 'nonstop' : clock(st.run ? (1 - st.p) * cyc : cyc)) : clock(cyc));
+    const k = buyCount(s), kk = Math.max(1, k), c = priceN(s, kk);
+    setText(q('bw'), owned ? 'Buy ' : 'Build'); q('bw').classList.toggle('opt', owned);
+    setText(q('bl'), owned ? `×${kk}` : '');
+    setText(q('bc'), J(c));
+    off(card.querySelector('.bbtn'), k < 1 || c > S.J);
+    const m = nextMilestone(st.n);
+    if (m) {
+      const prev = [0, ...SPEED_AT, ...PROFIT_AT].filter(a => a <= st.n).pop();
+      setText(q('msa'), String(m.at)); setText(q('msk'), m.kind.split(' ')[0] + ' ');
+      q('mbar').style.width = ((st.n - prev) / (m.at - prev) * 100).toFixed(1) + '%';
+    } else { setText(q('msa'), 'Max'); setText(q('msk'), 'all '); q('mbar').style.width = '100%'; }
+  }
+}
+
+function renderHud() {
+  setText($('bank'), J(S.J));
+  setText($('watts'), W(M.watts));
+  const K = (Math.log10(Math.max(M.watts, 0.01)) - 6) / 10;
+  setText($('ktype'), `Type ${K < 0 ? '−' : ''}${Math.abs(K).toFixed(2)}`);
+  $('kfill').style.clipPath = `inset(0 ${(100 - clamp(K / 3, 0, 1) * 100).toFixed(2)}% 0 0)`;
+  let ci = -1;
+  CMP.forEach((c, i) => { if (M.auto >= c[0] || M.watts >= c[0]) ci = i; });
+  const cur = ci >= 0 ? CMP[ci] : null, next = CMP[ci + 1];
+  setText($('cmpNow'), cur ? `Out-producing ${cur[1]}` : 'Not yet out-producing a hamster');
+  setText($('cmpNext'), next ? ` · next: ${next[1]} (${W(next[0])})` : '');
+  if (M.auto >= (CMP[S.ui.cmp + 1] || [Infinity])[0]) {
+    while (S.ui.cmp + 1 < CMP.length && M.auto >= CMP[S.ui.cmp + 1][0]) S.ui.cmp++;
+    if (S.ui.cmp >= 2) { say(`Out-producing ${CMP[S.ui.cmp][1]}! Squeak!`, true); SFX.mile(); }
+  }
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(String(S.ui.buy) === b.dataset.v)));
+}
+
+function renderUpgrades() {
+  const box = $('upbox');
+  const list = UPS.filter(u => !upDone(u));
+  rebuildIf('ups', list.map(u => u.id).join(','), 'side', () => {
+    box.innerHTML = list.map(u => `
+      <button type="button" class="up" data-act="up" data-v="${u.id}">
+        <span class="up-top"><span class="kind ${u.kind}">${KIND[u.kind]}</span><span class="cost">${J(u.cost)}</span></span>
+        <strong>${esc(u.name)}</strong><span class="up-d">${esc(u.desc)}</span>
+      </button>`).join('') || '<p class="note">Everything is researched. Time for a Big Crunch.</p>';
+  });
+  box.querySelectorAll('[data-act="up"]').forEach(b => {
+    const u = UI[b.dataset.v], done = upDone(u), can = !done && S.J >= u.cost;
+    b.classList.toggle('done', done); b.classList.toggle('can', can);
+    off(b, !can);
+    if (done) setText(b.querySelector('.cost'), 'Done');
+  });
+  setText($('upCount'), `${list.filter(u => S.J >= u.cost).length} affordable`);
+}
+
+let crunchArmed = false, crunchTimer = null;
+function renderCrunch() {
+  const el = $('crunch');
+  rebuildIf('crunch', 'static', null, () => {
+    el.innerHTML = `
+      <div class="ph"><h2>Big Crunch</h2><span class="lbl" data-f="uni"></span></div>
+      <p class="note">Collapse this universe and start a fresh one. Sources, operators, research and energy reset. Dark matter carries over, and each unspent unit adds to all profit.</p>
+      <div class="kv">
+        <div><span class="lbl">Dark matter</span><b data-f="dm"></b><span class="lbl" data-f="dmb"></span></div>
+        <div><span class="lbl">Collapse now for</span><b data-f="claim"></b><span class="lbl" data-f="next"></span></div>
+      </div>
+      <button type="button" class="btn" data-act="crunch" data-f="cb"></button>
+      <div class="dm"><h3>Spend dark matter</h3>
+        <p class="note" style="margin:0">Spending lowers your bonus, so buy these when they're worth more than the units they cost.</p>
+        ${DMU.map(d => `<button type="button" class="dmi" data-act="dm" data-v="${d.id}"><strong>${esc(d.name)}</strong><span class="cost">${num(d.cost)}</span><span class="up-d">${esc(d.desc)}</span></button>`).join('')}
+      </div>`;
+  });
+  const q = f => el.querySelector(`[data-f="${f}"]`), claim = dmClaim();
+  setText(q('uni'), `Universe #${S.universe}`);
+  setText(q('dm'), num(S.dm));
+  setText(q('dmb'), `+${num(Math.round(S.dm * dmRate() * 100))}% profit`);
+  setText(q('claim'), '+' + num(claim));
+  setText(q('next'), `next: ${J(lifeFor(S.dmEarned + claim + 1))}`);
+  const cb = q('cb');
+  setText(cb, claim < 1 ? `Bank ${J(lifeFor(S.dmEarned + 1))} total to collapse` : crunchArmed ? 'Click again to collapse it all' : `Collapse the universe (+${num(claim)})`);
+  off(cb, claim < 1);
+  el.querySelectorAll('[data-act="dm"]').forEach(b => {
+    const d = DI[b.dataset.v], done = hasD(d.id);
+    b.classList.toggle('done', done);
+    off(b, done || S.dm < d.cost);
+    if (done) setText(b.querySelector('.cost'), 'Owned');
+  });
+}
+
+function renderNet() {
+  const el = $('net');
+  rebuildIf('net', 'static', null, () => {
+    el.innerHTML = `<div class="ph"><h2>Network</h2><span class="lbl">Milestones</span></div>
+      <p class="note">Every 10, 25, 50, 100, 150, 200, 300 and 400 units of one source make it run twice as fast. When every source reaches 25, 50, 100, 200, 300 or 400, all profit doubles.</p>
+      <div class="netline"><span data-f="goal"></span><span data-f="low"></span></div>
+      <div class="netline"><span>Total profit multiplier</span><span data-f="mult"></span></div>
+      <div class="netline"><span>Sources on autopilot</span><span data-f="ops"></span></div>`;
+  });
+  const q = f => el.querySelector(`[data-f="${f}"]`), lo = minOwned(), nx = ALL_AT.find(a => a > lo);
+  const weakest = SRC.reduce((a, s) => S.src[s.id].n < S.src[a.id].n ? s : a, SRC[0]);
+  setText(q('goal'), nx ? `All sources at ${nx}` : 'Every network milestone reached');
+  setText(q('low'), nx ? `${weakest.name.split(' ')[0]} ${num(lo)}/${nx}` : '');
+  setText(q('mult'), '×' + num(Math.round(M.global * 100) / 100));
+  setText(q('ops'), `${SRC.filter(s => S.src[s.id].op).length} of ${SRC.length}`);
+}
+
+let importArmed = false, resetArmed = false, cpullArmed = false, crestArmed = false, armTimer = null;
+// ================= Windows: Stats and Settings =================
+let modal = null, modalOpener = null;
+const RES_TOTAL = UPS.filter(u => u.kind !== 'op').length;
+const MS_TOTAL = SRC.length * (SPEED_AT.length + PROFIT_AT.length) + ALL_AT.length;
+const kOf = w => (Math.log10(Math.max(w, 0.01)) - 6) / 10;
+const kText = w => { const K = kOf(w); return `Type ${K < 0 ? '−' : ''}${Math.abs(K).toFixed(2)}`; };
+function milestonesReached() {
+  let n = 0;
+  for (const s of SRC) { const c = S.src[s.id].n; SPEED_AT.forEach(a => { if (c >= a) n++; }); PROFIT_AT.forEach(a => { if (c >= a) n++; }); }
+  const lo = minOwned(); ALL_AT.forEach(a => { if (lo >= a) n++; });
+  return n;
+}
+const TILES = [
+  ['Output now', () => W(M.watts), () => kText(M.watts)],
+  ['Best output ever', () => W(S.bestW), () => kText(S.bestW)],
+  ['This universe', () => J(S.runLife), () => `in ${clock(S.runT)}`],
+  ['All universes', () => J(S.life), () => `${clock(S.t)} played`],
+  ['Dark matter', () => num(S.dm), () => `${num(S.dmEarned)} earned in all`],
+  ['Universe', () => '#' + num(S.universe), () => `${num(S.universe - 1)} collapsed so far`],
+  ['Units built', () => num(SRC.reduce((t, s) => t + S.src[s.id].n, 0)), () => `${milestonesReached()} of ${MS_TOTAL} milestones`],
+  ['Operators hired', () => `${SRC.filter(s => S.src[s.id].op).length} of ${SRC.length}`, () => `${S.res.length} of ${RES_TOTAL} research done`],
+  ['Manual runs', () => num(S.clicks), () => 'clicks on sources']
+];
+const SETS = [
+  ['sound', 'Sound effects', 'Chiptune bleeps for runs, purchases and milestones.', [['on', 'On'], ['off', 'Off']]],
+  ['motion', 'Animations', 'Calm stops sprite animation, confetti, blinking and the Big Crunch sequence.', [['full', 'Full'], ['calm', 'Calm']]],
+  ['stars', 'Starfield', 'The twinkling sky behind the game.', [['on', 'On'], ['off', 'Off']]],
+  ['chatter', 'Captain Nibbles', 'How often the CEO speaks up.', [['all', 'Chatty'], ['quiet', 'Reactions only'], ['off', 'Silent']]],
+  ['toasts', 'Pop-up messages', 'Notes about milestones, hires and research.', [['all', 'All'], ['key', 'Important'], ['off', 'Off']]],
+  ['numfmt', 'Numbers', 'SI units read 5.00 TJ. Scientific reads 5.00e12 J.', [['si', 'SI units'], ['sci', 'Scientific']]],
+  ['confirm', 'Big Crunch', 'Ask for a second click before collapsing the universe.', [['on', 'Ask twice'], ['off', 'One click']]]
+];
+const BOOL_SETS = ['sound', 'stars', 'confirm', 'cloud'];
+const getSetting = k => BOOL_SETS.includes(k) ? (S.ui[k] ? 'on' : 'off') : S.ui[k];
+function setSetting(k, v) {
+  S.ui[k] = BOOL_SETS.includes(k) ? v === 'on' : v;
+  if (k === 'sound' && S.ui.sound) { tone([[523, 0.06], [784, 0.08]]); say('Ooh, chiptunes!', true); }
+  if (k === 'cloud' && S.ui.cloud) cloudSync();
+  if (k === 'chatter' && v !== 'off') say(v === 'all' ? 'Back to chatting! Where was I?' : 'Fine. Only the big stuff.', true);
+  applySettings();
+}
+function applySettings() {
+  document.documentElement.classList.toggle('calm', calm());
+  $('sky').hidden = !S.ui.stars;
+  if (S.ui.stars) drawSky(performance.now());
+  if (S.ui.chatter === 'off') setText($('bubble'), 'Captain Nibbles is concentrating. Quietly.');
+  Object.values(PENS).forEach(p => p.key = '');
+  sig = {};
+}
+function openModal(kind, opener) {
+  if (kind !== 'stats' && kind !== 'settings') return;
+  modal = kind; modalOpener = opener || null;
+  setText($('winTitle'), kind === 'stats' ? 'Stats' : 'Settings');
+  $('modal').hidden = false;
+  buildModal();
+  $('win').focus();
+  if (kind === 'stats') say(pick(['Numbers! My second favorite snack.', 'Ooh, graphs. Very official.', 'Let me see the quarterly joules.']), true);
+}
+function closeModal() {
+  if (!modal) return;
+  modal = null; importArmed = resetArmed = cpullArmed = crestArmed = false;
+  $('modal').hidden = true;
+  if (modalOpener && document.contains(modalOpener)) modalOpener.focus();
+}
+function buildModal() {
+  const body = $('winBody');
+  sig.hist = undefined;
+  body.innerHTML = modal === 'stats' ? statsHTML() : settingsHTML();
+  if (modal === 'stats') {
+    const cv = $('trend'), cw = cv.parentElement.clientWidth - 20, sc = cw >= 540 ? 3 : 2, lw = clamp(Math.floor(cw / sc), 60, 180);
+    cv.width = lw; cv.style.width = lw * sc + 'px'; cv.style.height = 48 * sc + 'px';
+    setText($('winBody').querySelector('[data-f="tmins"]'), String(Math.round(lw * 10 / 60)));
+    body.querySelectorAll('tr[data-s]').forEach(tr => { tr.dataset.drawn = ''; });
+  }
+  if (modal === 'settings') $('vol').value = S.ui.vol;
+  renderModal();
+}
+function renderModal() { if (modal === 'stats') renderStats(); else if (modal === 'settings') renderSettings(); }
+
+function statsHTML() {
+  return `<div class="stiles">${TILES.map((t, i) => `<div class="stile"><span class="lbl">${t[0]}</span><b data-f="t${i}"></b><span class="sub" data-f="u${i}"></span></div>`).join('')}</div>
+    <h3 class="wh">Output, last <span data-f="tmins">30</span> minutes</h3>
+    <div class="trend">
+      <div class="trend-row"><span>Peak <b data-f="thi"></b></span><span>log scale · one bar every 10 s</span></div>
+      <canvas id="trend" class="px" width="180" height="48" role="img" aria-label="Output over recent minutes"></canvas>
+      <div class="trend-row"><span>Low <b data-f="tlo"></b></span><span>now →</span></div>
+    </div>
+    <h3 class="wh">Sources</h3>
+    <div class="twrap"><table class="st"><thead><tr><th>Source</th><th>Owned</th><th>Cycle</th><th>Per second</th><th>Share</th></tr></thead><tbody>
+      ${SRC.map(s => `<tr data-s="${s.id}"><td><canvas class="px" width="24" height="24" aria-hidden="true"></canvas>${esc(s.name)}</td><td data-f="n"></td><td data-f="c"></td><td data-f="w"></td><td data-f="p"></td></tr>`).join('')}
+    </tbody></table></div>
+    <h3 class="wh">Universe log</h3>
+    <div class="twrap" id="histBox"></div>`;
+}
+function renderStats() {
+  const body = $('winBody'), q = f => body.querySelector(`[data-f="${f}"]`);
+  TILES.forEach((t, i) => { setText(q('t' + i), t[1]()); setText(q('u' + i), t[2]()); });
+  body.querySelectorAll('tr[data-s]').forEach(tr => {
+    const s = SI[tr.dataset.s], st = S.src[s.id], cyc = M.cyc[s.id], rate = st.n ? M.rev[s.id] / cyc : 0;
+    const locked = st.n < 1, key = locked ? 'L' : 'U';
+    if (tr.dataset.drawn !== key) {
+      const c = tr.querySelector('canvas').getContext('2d'); c.clearRect(0, 0, 24, 24);
+      SPRITES[s.id](pen(c), 0, false);
+      if (locked) { c.globalCompositeOperation = 'source-atop'; c.fillStyle = '#2a3560'; c.fillRect(0, 0, 24, 24); c.globalCompositeOperation = 'source-over'; }
+      tr.dataset.drawn = key;
+    }
+    tr.classList.toggle('locked', locked);
+    const cell = f => tr.querySelector(`[data-f="${f}"]`);
+    setText(cell('n'), num(st.n));
+    setText(cell('c'), locked ? '—' : st.op && cyc < 0.25 ? 'nonstop' : clock(cyc));
+    setText(cell('w'), locked ? '—' : W(rate));
+    setText(cell('p'), locked ? '—' : st.op ? (M.auto ? Math.round(rate / M.auto * 100) + '%' : '0%') : 'manual');
+  });
+  drawTrend();
+  const box = $('histBox');
+  rebuildIf('hist', String(S.hist.length) + '|' + (S.ui.numfmt || ''), null, () => {
+    box.innerHTML = S.hist.length ? `<table class="st"><thead><tr><th>Universe</th><th>Lasted</th><th>Dark matter</th><th>Best output</th></tr></thead><tbody>
+      ${S.hist.slice().reverse().map(h => `<tr><td>#${num(h.u)}</td><td>${clock(h.dur)}</td><td>+${num(h.dm)}</td><td>${W(h.w)}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="note" style="margin:0">No universe has collapsed yet. Your first Big Crunch will show up here.</p>';
+  });
+}
+function drawTrend() {
+  const cv = $('trend'); if (!cv) return;
+  const c = cv.getContext('2d'), w = cv.width, h = cv.height, data = S.trend.slice(-w);
+  c.clearRect(0, 0, w, h);
+  const q = f => $('winBody').querySelector(`[data-f="${f}"]`);
+  if (!data.length) { setText(q('thi'), '—'); setText(q('tlo'), '—'); pen(c).rect(0, h - 1, w, 1, 'v'); return; }
+  const logs = data.map(v => Math.log10(Math.max(v, 0.1)));
+  const lo = Math.floor(Math.min(...logs)), hi = Math.max(lo + 1, Math.ceil(Math.max(...logs) + 0.001)), g = pen(c);
+  for (let d = lo + 1; d < hi; d++) { const y = Math.round(h - 1 - (d - lo) / (hi - lo) * (h - 2)); for (let x = 0; x < w; x += 3) g.px(x, y, 's'); }
+  data.forEach((v, i) => {
+    const x = w - data.length + i, bh = Math.max(1, Math.round((logs[i] - lo) / (hi - lo) * (h - 2)));
+    g.rect(x, h - bh, 1, bh, i === data.length - 1 ? 'y' : kOf(v) >= 1 ? 'P' : kOf(v) >= 0.5 ? 'G' : 'B');
+  });
+  g.rect(0, h - 1, w, 1, 'v');
+  setText(q('thi'), W(Math.max(...data))); setText(q('tlo'), W(Math.min(...data)));
+}
+
+function settingsHTML() {
+  return `<div class="sets">
+      ${SETS.map(([k, name, help, opts]) => `<div class="set"><div><b>${name}</b><span>${help}</span></div>
+        <div class="opts" role="group" aria-label="${name}">${opts.map(([v, l]) => `<button type="button" data-act="set" data-k="${k}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('')}
+      <div class="set"><div><b>Volume</b><span>How loud the sound effects play.</span></div><input type="range" class="vol" id="vol" min="0" max="100" step="5" aria-label="Volume"></div>
+    </div>
+    <h3 class="wh">Cloud save</h3>
+    <p class="note" data-f="cstat"></p>
+    <button type="button" class="btn" data-act="csignin" data-f="csignin">Sign in with Google</button>
+    <div class="acct" data-f="cacct"><span data-f="cwho"></span><button type="button" class="btn ghost" data-act="csignout">Sign out</button></div>
+    <div class="set" data-f="cauto"><div><b>Sync automatically</b><span>Backs up your game every couple of minutes, after a Big Crunch and when you leave. When you open the game on any device, the copy that's further along wins.</span></div>
+      <div class="opts" role="group" aria-label="Sync automatically"><button type="button" data-act="set" data-k="cloud" data-v="on">On</button><button type="button" data-act="set" data-k="cloud" data-v="off">Off</button></div></div>
+    <div class="row2" data-f="crow" style="margin-top:10px"><button type="button" class="btn ghost" data-act="cpush" data-f="cpush">Save to cloud now</button><button type="button" class="btn ghost" data-act="cpull" data-f="cpull">Load cloud save</button></div>
+    <button type="button" class="btn ghost" style="margin-top:8px" data-act="crestore" data-f="crest">Undo last cloud load</button>
+    <h3 class="wh">Save codes</h3>
+    <p class="note">The game also saves in this browser every few seconds. A save code moves it by hand: copy it here and load it on the other device.</p>
+    <div class="row2"><button type="button" class="btn ghost" data-act="copy">Copy save code</button><button type="button" class="btn ghost" data-act="import" data-f="imp">Load save code</button></div>
+    <textarea class="code" id="saveCode" spellcheck="false" placeholder="Paste a save code here, then choose Load save code"></textarea>
+    <button type="button" class="btn ghost danger" data-act="reset" data-f="rst">Erase everything</button>`;
+}
+function renderSettings() {
+  const body = $('winBody');
+  body.querySelectorAll('[data-act="set"]').forEach(b => b.setAttribute('aria-pressed', String(getSetting(b.dataset.k) === b.dataset.v)));
+  setText(body.querySelector('[data-f="imp"]'), importArmed ? 'Click again to replace' : 'Load save code');
+  setText(body.querySelector('[data-f="rst"]'), resetArmed ? 'Click again to erase everything' : (CLOUD.state === 'ready' ? 'Erase everything, here and in the cloud' : 'Erase everything'));
+  const q = f => body.querySelector(`[data-f="${f}"]`), ready = CLOUD.state === 'ready';
+  setText(q('cstat'), cloudStatus());
+  q('cauto').hidden = !ready; q('crow').hidden = !ready; q('cacct').hidden = !ready;
+  q('csignin').hidden = CLOUD.state !== 'signedout';
+  setText(q('cwho'), ready && CLOUD.user ? 'Signed in as ' + (CLOUD.user.name || CLOUD.user.email || 'you') : '');
+  off(q('cpush'), !ready || CLOUD.busy);
+  off(q('cpull'), !ready || CLOUD.busy || !CLOUD.info);
+  setText(q('cpull'), cpullArmed ? 'Click again to replace this game' : 'Load cloud save');
+  q('crest').hidden = !hasBackup();
+  setText(q('crest'), crestArmed ? 'Click again to undo' : 'Undo last cloud load');
+}
+
+function render(now = performance.now()) { renderHud(); renderSources(now); renderUpgrades(); renderCrunch(); renderNet(); renderModal(); }
+
+// ================= Save codes =================
+const encodeSave = () => btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+function decodeSave(code) { try { return hydrate(JSON.parse(decodeURIComponent(escape(atob(code.trim()))))); } catch (e) { return null; } }
+function replaceGame(s) { S = s; syncSets(); manualRate = 0; sig = {}; Object.values(PENS).forEach(p => p.key = ''); recalc(); applySettings(); if (modal) buildModal(); render(); save(); }
+function disarmLater() { clearTimeout(armTimer); armTimer = setTimeout(() => { importArmed = resetArmed = cpullArmed = crestArmed = false; }, 4000); }
+
+// ================= Cloud save (Google sign-in + Firestore) =================
+// The module script at the bottom of the page connects Firebase when firebase-config.js is filled in.
+// One document per player (saves/<uid>). The copy that's further along wins on open;
+// a replaced local game is kept as a backup in this browser.
+const CLOUD = { api: null, user: null, state: 'checking', busy: false, info: null, err: '', lastLife: -1, nudged: false, quotaWarned: false };
+const BACKUP_KEY = SAVE_KEY + '-backup';
+const DEVICE = (() => { try { let d = localStorage.getItem('hdh-device'); if (!d) { d = Math.random().toString(36).slice(2, 10); localStorage.setItem('hdh-device', d); } return d; } catch (e) { return Math.random().toString(36).slice(2, 10); } })();
+let cloudChain = Promise.resolve();
+const cloudTask = fn => (cloudChain = cloudChain.then(async () => { CLOUD.busy = true; try { await fn(); } catch (e) { cloudError(e); } finally { CLOUD.busy = false; } }));
+function ago(ms) {
+  const s = (Date.now() - ms) / 1000;
+  if (s < 15) return 'just now';
+  if (s < 60) return Math.floor(s) + ' s ago';
+  if (s < 3600) return Math.floor(s / 60) + ' min ago';
+  if (s < 86400) return Math.floor(s / 3600) + ' h ago';
+  return Math.floor(s / 86400) + ' days ago';
+}
+function aheadOf(a, b) { // is save a further along than save b?
+  if (!b) return true;
+  if (a.life > b.life * 1.000001 + 1) return true;
+  if (a.life < b.life * 0.999999 - 1) return false;
+  return a.t > b.t + 5;
+}
+function cloudError(e) {
+  const code = (e && e.code) || '';
+  if (code === 'permission-denied') CLOUD.err = 'The cloud refused this save. The site owner may need to publish the Firestore rules.';
+  else if (code === 'resource-exhausted') {
+    CLOUD.err = "The game's free cloud quota is used up for today. Your game still saves in this browser.";
+    if (!CLOUD.quotaWarned) { CLOUD.quotaWarned = true; toast(CLOUD.err); }
+  }
+  else if (code === 'unauthenticated') CLOUD.err = 'Your sign-in expired. Sign in again to keep syncing.';
+  else CLOUD.err = "Couldn't reach the cloud. It will try again in a couple of minutes.";
+}
+async function withRetry(fn) {
+  try { return await fn(); }
+  catch (e) { if (e && (e.code === 'unavailable' || e.code === 'deadline-exceeded')) { await new Promise(r => setTimeout(r, 800 + Math.random() * 1200)); return await fn(); } throw e; }
+}
+async function cloudPull() {
+  if (CLOUD.state !== 'ready') return null;
+  const d = await withRetry(() => CLOUD.api.get(CLOUD.user.uid));
+  if (!d) { CLOUD.info = null; return null; }
+  CLOUD.info = { at: d.savedAt, life: d.life, universe: d.universe };
+  let s = null; try { s = hydrate(JSON.parse(d.data)); } catch (e) {}
+  return s;
+}
+async function cloudPush() {
+  if (CLOUD.state !== 'ready') return;
+  S.saved = Date.now(); save();
+  const body = { v: 1, data: JSON.stringify(S), savedAt: S.saved, device: DEVICE, life: S.life, universe: S.universe, t: S.t };
+  await withRetry(() => CLOUD.api.set(CLOUD.user.uid, body));
+  CLOUD.lastLife = S.life; CLOUD.err = '';
+  CLOUD.info = { at: body.savedAt, life: body.life, universe: body.universe };
+}
+function keepBackup() { try { localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); } catch (e) {} }
+function hasBackup() { try { return !!localStorage.getItem(BACKUP_KEY); } catch (e) { return false; } }
+function adopt(s, msg) {
+  keepBackup();
+  replaceGame(s);
+  applyOffline(true);
+  CLOUD.lastLife = S.life;
+  toast(msg, true);
+  say('Welcome back! I kept your universe warm.', true);
+}
+// Sign-in, opening the game, returning to the tab, or switching auto-sync on: take whichever copy is further along.
+const cloudSync = () => cloudTask(async () => {
+  if (CLOUD.state !== 'ready' || !S.ui.cloud) return;
+  const remote = await cloudPull();
+  if (remote && aheadOf(remote, S)) adopt(remote, 'Loaded your cloud save. It was further along than this device.');
+  else if (!remote || aheadOf(S, remote)) await cloudPush();
+});
+const cloudAutosave = () => { if (CLOUD.state === 'ready' && S.ui.cloud && !CLOUD.busy && S.life !== CLOUD.lastLife) cloudTask(cloudPush); };
+const cloudForcePush = () => { if (CLOUD.state === 'ready') cloudTask(cloudPush); };
+function cloudAttach(api) {
+  if (!api) { if (CLOUD.state === 'checking') CLOUD.state = 'off'; return; }
+  if (CLOUD.api) return;
+  CLOUD.api = api; CLOUD.state = 'signedout';
+  api.onUser(u => {
+    const before = CLOUD.user && CLOUD.user.uid;
+    CLOUD.user = u; CLOUD.err = '';
+    if (!u) { CLOUD.state = 'signedout'; CLOUD.info = null; return; }
+    CLOUD.state = 'ready';
+    if (u.uid !== before) { CLOUD.lastLife = -1; CLOUD.info = null; if (S.ui.cloud) cloudSync(); else cloudTask(cloudPull); }
+  });
+}
+function cloudBoot() {
+  window.addEventListener('hdh-cloud', e => cloudAttach(e.detail));
+  if (window.HDH_CLOUD !== undefined) cloudAttach(window.HDH_CLOUD);
+  setTimeout(() => { if (CLOUD.state === 'checking') CLOUD.state = 'off'; }, 15000);
+  setTimeout(() => { if (CLOUD.state === 'signedout' && !CLOUD.nudged) { CLOUD.nudged = true; say('Psst. Sign in from Settings and I can keep your universe in the cloud.', true); } }, 25000);
+}
+function cloudSignIn() {
+  if (!CLOUD.api) return;
+  Promise.resolve(CLOUD.api.signIn()).then(() => toast('Signed in. Your game now syncs to the cloud.', true)).catch(e => {
+    const c = (e && e.code) || '';
+    if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return;
+    toast(c === 'auth/popup-blocked' ? 'Your browser blocked the sign-in window. Allow pop-ups for this site, then try again.'
+      : c === 'auth/unauthorized-domain' ? "Sign-in isn't enabled for this web address yet. The site owner needs to add it in Firebase."
+      : c === 'auth/operation-not-allowed' ? "Google sign-in isn't switched on for this game yet."
+      : "Sign-in didn't work. Please try again.");
+  });
+}
+function cloudSignOut() {
+  if (!CLOUD.api || CLOUD.state !== 'ready') return;
+  cloudTask(cloudPush).then(() => CLOUD.api.signOut()).then(() => toast('Signed out. Your game keeps saving in this browser.')).catch(() => {});
+}
+function cloudStatus() {
+  if (CLOUD.state === 'checking') return 'Connecting to the cloud…';
+  if (CLOUD.state === 'off') return "Cloud save isn't set up on this copy of the game. Your game saves in this browser.";
+  if (CLOUD.state === 'signedout') return 'Sign in with Google to back up your game and pick it up on any device. It also keeps saving in this browser.';
+  if (CLOUD.busy) return 'Syncing with the cloud…';
+  if (CLOUD.err) return CLOUD.err;
+  if (!CLOUD.info) return S.ui.cloud ? 'Nothing in the cloud yet. Your first backup goes up in a moment.' : 'Nothing in the cloud yet. Turn on auto-sync or choose Save to cloud now.';
+  return `Cloud copy: universe #${num(CLOUD.info.universe)}, ${J(CLOUD.info.life)} banked all-time, saved ${ago(CLOUD.info.at)}.`;
+}
+
+// ================= Input =================
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  const a = el.dataset.act, v = el.dataset.v;
+  switch (a) {
+    case 'run': startRun(v); break;
+    case 'buy': buySource(v); break;
+    case 'buyamt': S.ui.buy = v === 'next' || v === 'max' ? v : +v; break;
+    case 'up': buyUpgrade(v); break;
+    case 'dm': buyDM(v); break;
+    case 'open': openModal(v, el); return;
+    case 'close': closeModal(); return;
+    case 'set': setSetting(el.dataset.k, v); break;
+    case 'crunch':
+      if (S.ui.confirm && !crunchArmed) { crunchArmed = true; clearTimeout(crunchTimer); crunchTimer = setTimeout(() => { crunchArmed = false; }, 4000); }
+      else { crunchArmed = false; say('See you on the other side of the Big Bang!', true); crunchFx(() => { crunch(); recalc(); render(); cloudForcePush(); }); }
+      break;
+    case 'copy': {
+      const code = encodeSave(), ta = $('saveCode'); if (ta) ta.value = code;
+      const fallback = () => { if (ta) { ta.focus(); ta.select(); } toast('Select the code in the box and copy it.'); };
+      try { navigator.clipboard.writeText(code).then(() => toast('Save code copied.'), fallback); } catch (err) { fallback(); }
+      break;
+    }
+    case 'csignin': cloudSignIn(); break;
+    case 'csignout': cloudSignOut(); break;
+    case 'cpush': cloudForcePush(); toast('Saving to the cloud…'); break;
+    case 'cpull':
+      if (!cpullArmed) { cpullArmed = true; disarmLater(); break; }
+      cpullArmed = false;
+      cloudTask(async () => { const r = await cloudPull(); if (r) adopt(r, 'Loaded your cloud save.'); else toast('There is no cloud save to load yet.'); });
+      break;
+    case 'crestore': {
+      if (!crestArmed) { crestArmed = true; disarmLater(); break; }
+      crestArmed = false;
+      let b = null; try { b = hydrate(JSON.parse(localStorage.getItem(BACKUP_KEY))); } catch (err) {}
+      if (!b) { toast('The backup could not be read.'); break; }
+      try { localStorage.removeItem(BACKUP_KEY); } catch (err) {}
+      replaceGame(b); cloudForcePush(); toast('Restored the game this device had before the cloud load.', true); return;
+    }
+    case 'import': {
+      const ta = $('saveCode'), s = ta && ta.value.trim() ? decodeSave(ta.value) : null;
+      if (!s) { toast('That save code could not be read. Paste the whole code and try again.'); importArmed = false; break; }
+      if (!importArmed) { importArmed = true; disarmLater(); break; }
+      importArmed = false; replaceGame(s); cloudForcePush(); toast('Save loaded.'); return;
+    }
+    case 'reset':
+      if (!resetArmed) { resetArmed = true; disarmLater(); break; }
+      resetArmed = false; closeModal(); replaceGame(fresh()); cloudForcePush(); toast('A brand new universe. Click the Hamster Wheel to begin.'); say('Welcome aboard! Click the wheel. I will do the running.', true); return;
+  }
+  recalc(); render();
+});
+document.addEventListener('input', e => { if (e.target.id === 'vol') { S.ui.vol = +e.target.value; } });
+document.addEventListener('change', e => { if (e.target.id === 'vol' && S.ui.sound) tone([[660, 0.06], [880, 0.06]]); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal) closeModal(); });
+$('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+// ================= Boot =================
+function applyOffline(quiet) {
+  recalc();
+  const away = Math.min((Date.now() - S.saved) / 1000, 86400), earned = M.auto * away;
+  if (away > 60 && earned >= 1) {
+    gain(earned); S.saved = Date.now();
+    if (!quiet) { toast(`While you were away, your operators banked ${J(earned)}.`, true); say('While you were gone, the operators kept the lights on.', true); }
+  }
+}
+let booted = false;
+function start(data) {
+  let s = null;
+  if (data && typeof data.save === 'string') { try { s = hydrate(JSON.parse(data.save)); } catch (e) {} }
+  const fromHot = !!s;
+  S = s || loadLocal() || fresh();
+  syncSets(); recalc();
+  if (!booted) { buildSources(); resizeSky(); document.querySelectorAll('canvas[data-ui]').forEach(cv => UIICON[cv.dataset.ui](pen(cv.getContext('2d')))); }
+  applySettings();
+  if (!fromHot) applyOffline(false);
+  if (S.life < 1) say('Welcome aboard! Click the wheel. I will do the running.', true);
+  else if (!$('bubble').textContent) say(pick(QUIPS), true);
+  sig = {};
+  render();
+  if (booted) return;
+  booted = true;
+  let last = performance.now(), frameN = 0;
+  setInterval(() => {
+    const now = performance.now(), dt = Math.min((now - last) / 1000, 3600);
+    last = now; tick(dt); render(now);
+    if (++frameN % 2 === 0) { drawMascotFrame(now); if (!calm() && S.ui.stars) drawSky(now); }
+  }, 50);
+  setInterval(save, 5000);
+  setInterval(cloudAutosave, 120000);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { save(); cloudAutosave(); } else cloudSync(); });
+  addEventListener('pagehide', () => { save(); cloudAutosave(); });
+  cloudBoot();
+  drawMascotFrame(performance.now());
+  try { const l = document.createElement('link'); l.rel = 'icon'; l.href = $('mascot').toDataURL(); document.head.appendChild(l); } catch (e) {}
+}
+start({});
+</script>
+<script src="firebase-config.js"></script>
+<script type="module">
+// Connects Google sign-in and Firestore when firebase-config.js is filled in. Without it the game saves in the browser only.
+const cfg = window.FIREBASE_CONFIG;
+const announce = api => { window.HDH_CLOUD = api; window.dispatchEvent(new CustomEvent('hdh-cloud', { detail: api })); };
+if (!cfg || !cfg.apiKey || !cfg.projectId) announce(null);
+else {
+  try {
+    const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
+    const [{ initializeApp }, A, F] = await Promise.all([import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore.js')]);
+    const app = initializeApp(cfg), auth = A.getAuth(app), db = F.getFirestore(app);
+    const provider = new A.GoogleAuthProvider();
+    announce({
+      onUser: cb => A.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, name: u.displayName || '', email: u.email || '' } : null)),
+      signIn: () => A.signInWithPopup(auth, provider),
+      signOut: () => A.signOut(auth),
+      get: async uid => { const snap = await F.getDoc(F.doc(db, 'saves', uid)); return snap.exists() ? snap.data() : null; },
+      set: (uid, body) => F.setDoc(F.doc(db, 'saves', uid), body)
+    });
+  } catch (e) { console.warn('Cloud save could not start:', e); announce(null); }
+}
+</script>
+</body>
+</html>
